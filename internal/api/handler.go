@@ -1,0 +1,29 @@
+package api
+
+import (
+	"github.com/go-chi/chi/v5"
+
+	"what-i-know-api/internal/usecase"
+)
+
+type Services struct {
+	Users usecase.UserService
+	Notes usecase.NoteService
+	Marks usecase.MarkService
+	Auth  usecase.AuthService
+}
+
+type Handler struct {
+	services Services
+}
+
+func NewHandler(services Services) *Handler {
+	return &Handler{services: services}
+}
+
+func (h *Handler) RegisterRoutes(r chi.Router) {
+	h.registerUserRoutes(r)
+	h.registerNoteRoutes(r)
+	h.registerMarkRoutes(r)
+	h.registerAuthRoutes(r)
+}
