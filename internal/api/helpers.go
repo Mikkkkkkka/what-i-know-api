@@ -46,6 +46,12 @@ func writeError(w http.ResponseWriter, err error) {
 	case errors.Is(err, domain.ErrInvalidInput):
 		status = http.StatusBadRequest
 		message = err.Error()
+	case errors.Is(err, domain.ErrUnauthorized):
+		status = http.StatusUnauthorized
+		message = err.Error()
+	case errors.Is(err, domain.ErrForbidden):
+		status = http.StatusForbidden
+		message = err.Error()
 	case errors.Is(err, domain.ErrNotFound):
 		status = http.StatusNotFound
 		message = err.Error()
@@ -65,6 +71,15 @@ func urlParamInt64(r *http.Request, key string) (int64, error) {
 	}
 
 	return id, nil
+}
+
+func urlParamString(r *http.Request, key string) (string, error) {
+	value := strings.TrimSpace(chi.URLParam(r, key))
+	if value == "" {
+		return "", domain.ErrInvalidInput
+	}
+
+	return value, nil
 }
 
 func bearerToken(r *http.Request) (string, error) {

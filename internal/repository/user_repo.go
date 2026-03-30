@@ -16,7 +16,7 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-func (r *UserRepository) GetById(ctx context.Context, id int64) (*domain.User, error) {
+func (r *UserRepository) GetById(ctx context.Context, id string) (*domain.User, error) {
 	var model userModel
 	if err := r.db.WithContext(ctx).First(&model, id).Error; err != nil {
 		return nil, translateError(err)
@@ -40,7 +40,6 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 		return translateError(err)
 	}
 
-	user.Id = model.ID
 	user.CreatedAt = model.CreatedAt
 	return nil
 }
@@ -64,7 +63,7 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
 	return nil
 }
 
-func (r *UserRepository) Delete(ctx context.Context, userId int64) error {
+func (r *UserRepository) Delete(ctx context.Context, userId string) error {
 	result := r.db.WithContext(ctx).Delete(&userModel{}, userId)
 	if result.Error != nil {
 		return translateError(result.Error)

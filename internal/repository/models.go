@@ -7,7 +7,7 @@ import (
 )
 
 type userModel struct {
-	ID        int64     `gorm:"primaryKey;autoIncrement"`
+	ID        string    `gorm:"primaryKey;type:text"`
 	Username  string    `gorm:"type:text;not null;uniqueIndex"`
 	Password  string    `gorm:"type:text;not null"`
 	CreatedAt time.Time `gorm:"not null;autoCreateTime"`
@@ -44,11 +44,10 @@ func toDomainUser(model *userModel) *domain.User {
 }
 
 type noteModel struct {
-	ID        int64     `gorm:"primaryKey;autoIncrement"`
-	UserID    int64     `gorm:"not null;index"`
-	Name      string    `gorm:"type:text;not null"`
+	ID        string    `gorm:"primaryKey;type:text"`
+	UserID    string    `gorm:"type:text;not null;index"`
+	Title     string    `gorm:"type:text;not null"`
 	Content   string    `gorm:"type:text;not null"`
-	Date      time.Time `gorm:"not null"`
 	UpdatedAt time.Time `gorm:"not null;autoUpdateTime"`
 }
 
@@ -64,9 +63,8 @@ func toNoteModel(note *domain.Note) *noteModel {
 	return &noteModel{
 		ID:        note.Id,
 		UserID:    note.UserId,
-		Name:      note.Name,
+		Title:     note.Title,
 		Content:   note.Content,
-		Date:      note.Date,
 		UpdatedAt: note.UpdatedAt,
 	}
 }
@@ -79,16 +77,15 @@ func toDomainNote(model *noteModel) *domain.Note {
 	return &domain.Note{
 		Id:        model.ID,
 		UserId:    model.UserID,
-		Name:      model.Name,
+		Title:     model.Title,
 		Content:   model.Content,
-		Date:      model.Date,
 		UpdatedAt: model.UpdatedAt,
 	}
 }
 
 type markModel struct {
 	ID        int64     `gorm:"primaryKey;autoIncrement"`
-	UserID    int64     `gorm:"not null;index"`
+	UserID    string    `gorm:"type:text;not null;index"`
 	Date      time.Time `gorm:"not null"`
 	Content   string    `gorm:"type:text;not null"`
 	UpdatedAt time.Time `gorm:"not null;autoUpdateTime"`
@@ -128,7 +125,7 @@ func toDomainMark(model *markModel) *domain.Mark {
 
 type sessionModel struct {
 	ID       int64  `gorm:"primaryKey;autoIncrement"`
-	UserID   int64  `gorm:"not null;index"`
+	UserID   string `gorm:"type:text;not null;index"`
 	Username string `gorm:"type:text;not null"`
 	Token    string `gorm:"type:text;not null;uniqueIndex"`
 }

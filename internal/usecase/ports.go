@@ -5,6 +5,10 @@ type PasswordHasher interface {
 	Compare(hashedPassword, password string) error
 }
 
+type IDGenerator interface {
+	Generate() (string, error)
+}
+
 type TokenGenerator interface {
 	Generate() (string, error)
 }

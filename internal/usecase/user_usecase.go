@@ -9,10 +9,11 @@ import (
 )
 
 type UserService interface {
-	GetById(ctx context.Context, id int64) (*domain.User, error)
-	CreateUser(ctx context.Context, request CreateUserRequest) error
+	GetById(ctx context.Context, id string) (*domain.User, error)
+	GetByUsername(ctx context.Context, username string) (*domain.User, error)
+	CreateUser(ctx context.Context, request CreateUserRequest) (string, error)
 	UpdateUser(ctx context.Context, request UpdateUserRequest) error
-	DeleteUser(ctx context.Context, id int64) error
+	DeleteUser(ctx context.Context, id string) error
 }
 
 type CreateUserRequest struct {
@@ -21,53 +22,75 @@ type CreateUserRequest struct {
 }
 
 type UpdateUserRequest struct {
-	Id       int64
+	Id       string
 	Username string
+	// updating password isn't implemented yet
 }
 
 type UserUseCase struct {
-	users          domain.UserRepository
+	userRepo       domain.UserRepository
+	idGenerator    IDGenerator
 	passwordHasher PasswordHasher
 }
 
-func NewUserService(users domain.UserRepository, passwordHasher PasswordHasher) *UserUseCase {
+func NewUserService(users domain.UserRepository, idGenerator IDGenerator, passwordHasher PasswordHasher) *UserUseCase {
 	return &UserUseCase{
-		users:          users,
+		userRepo:       users,
+		idGenerator:    idGenerator,
 		passwordHasher: passwordHasher,
 	}
 }
 
-func (s *UserUseCase) GetById(ctx context.Context, id int64) (*domain.User, error) {
-	if id <= 0 {
+func (s *UserUseCase) GetById(ctx context.Context, id string) (*domain.User, error) {
+	if strings.TrimSpace(id) == "" {
 		return nil, domain.ErrInvalidInput
 	}
 
-	return s.users.GetById(ctx, id)
+	return s.userRepo.GetById(ctx, id)
 }
 
-func (s *UserUseCase) CreateUser(ctx context.Context, request CreateUserRequest) error {
+func (s *UserUseCase) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
+	username = strings.TrimSpace(username)
+	if username == "" {
+		return nil, domain.ErrInvalidInput
+	}
+
+	return s.userRepo.GetByUsername(ctx, username)
+}
+
+func (s *UserUseCase) CreateUser(ctx context.Context, request CreateUserRequest) (string, error) {
 	username := strings.TrimSpace(request.Username)
 	password := strings.TrimSpace(request.Password)
 	if username == "" || password == "" {
-		return domain.ErrInvalidInput
+		return "", domain.ErrInvalidInput
+	}
+
+	id, err := s.idGenerator.Generate()
+	if err != nil {
+		return "", err
 	}
 
 	hashedPassword, err := s.passwordHasher.Hash(password)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	user := &domain.User{
+		Id:        id,
 		Username:  username,
 		Password:  hashedPassword,
 		CreatedAt: time.Now().UTC(),
 	}
 
-	return s.users.Create(ctx, user)
+	if err := s.userRepo.Create(ctx, user); err != nil {
+		return "", err
+	}
+
+	return user.Id, nil
 }
 
 func (s *UserUseCase) UpdateUser(ctx context.Context, request UpdateUserRequest) error {
-	if request.Id <= 0 {
+	if strings.TrimSpace(request.Id) == "" {
 		return domain.ErrInvalidInput
 	}
 
@@ -76,22 +99,22 @@ func (s *UserUseCase) UpdateUser(ctx context.Context, request UpdateUserRequest)
 		return domain.ErrInvalidInput
 	}
 
-	user, err := s.users.GetById(ctx, request.Id)
+	user, err := s.userRepo.GetById(ctx, request.Id)
 	if err != nil {
 		return err
 	}
 
 	user.Username = username
 
-	return s.users.Update(ctx, user)
+	return s.userRepo.Update(ctx, user)
 }
 
-func (s *UserUseCase) DeleteUser(ctx context.Context, id int64) error {
-	if id <= 0 {
+func (s *UserUseCase) DeleteUser(ctx context.Context, id string) error {
+	if strings.TrimSpace(id) == "" {
 		return domain.ErrInvalidInput
 	}
 
-	return s.users.Delete(ctx, id)
+	return s.userRepo.Delete(ctx, id)
 }
 
 var _ UserService = (*UserUseCase)(nil)
