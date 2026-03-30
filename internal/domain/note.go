@@ -6,18 +6,17 @@ import (
 )
 
 type Note struct {
-	Id        int64
-	UserId    int64
-	Name      string
+	Id        string // Generated on client via UUID v4. Slim (1/2^122) chance of collision!
+	UserId    string
+	Title     string
 	Content   string // Markdown string
-	Date      time.Time
 	UpdatedAt time.Time
 }
 
 type NoteRepository interface {
-	GetById(ctx context.Context, id int64) (*Note, error)
-	GetByUserId(ctx context.Context, userId int64) ([]*Note, error)
+	GetById(ctx context.Context, id string) (*Note, error)
+	GetByUserId(ctx context.Context, userId string) ([]*Note, error)
 	Create(ctx context.Context, note *Note) error
 	Update(ctx context.Context, note *Note) error
-	Delete(ctx context.Context, id int64) error
+	Delete(ctx context.Context, id string) error
 }

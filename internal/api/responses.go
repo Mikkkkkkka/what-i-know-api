@@ -21,11 +21,10 @@ func newUserResponse(user *domain.User) userResponse {
 }
 
 type noteResponse struct {
-	ID        int64     `json:"id"`
-	UserID    int64     `json:"user_id"`
-	Name      string    `json:"name"`
+	ID        string    `json:"id"`
+	UserID    string    `json:"user_id"`
+	Title     string    `json:"name"`
 	Content   string    `json:"content"`
-	Date      time.Time `json:"date"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
@@ -33,9 +32,8 @@ func newNoteResponse(note *domain.Note) noteResponse {
 	return noteResponse{
 		ID:        note.Id,
 		UserID:    note.UserId,
-		Name:      note.Name,
+		Title:     note.Title,
 		Content:   note.Content,
-		Date:      note.Date,
 		UpdatedAt: note.UpdatedAt,
 	}
 }

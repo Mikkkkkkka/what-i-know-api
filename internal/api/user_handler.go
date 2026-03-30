@@ -3,6 +3,8 @@ package api
 import (
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+
 	"what-i-know-api/internal/usecase"
 )
 
@@ -15,6 +17,18 @@ type updateUserRequest struct {
 	Username string `json:"username"`
 }
 
+func (h *Handler) registerUserRoutes(r chi.Router) {
+	r.Route("/users", func(r chi.Router) {
+		r.Post("/", h.createUser)
+		r.Get("/{username}", h.getUser)
+		r.Patch("/{userID}", h.updateUser)
+		r.Delete("/{userID}", h.deleteUser)
+
+		r.With(h.requireAuth).Get("/{userID}/notes", h.listNotesByUser)
+		r.With(h.requireAuth).Get("/{userID}/marks", h.listMarksByUser)
+	})
+}
+
 func (h *Handler) createUser(w http.ResponseWriter, r *http.Request) {
 	var request createUserRequest
 	if err := decodeJSON(r, &request); err != nil {
@@ -22,7 +36,7 @@ func (h *Handler) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.services.Users.CreateUser(r.Context(), usecase.CreateUserRequest{
+	id, err := h.services.Users.CreateUser(r.Context(), usecase.CreateUserRequest{
 		Username: request.Username,
 		Password: request.Password,
 	})
@@ -31,17 +45,17 @@ func (h *Handler) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, map[string]string{"status": "created"})
+	writeJSON(w, http.StatusCreated, map[string]string{"id": id})
 }
 
 func (h *Handler) getUser(w http.ResponseWriter, r *http.Request) {
-	userID, err := urlParamInt64(r, "userID")
+	username, err := urlParamString(r, "username")
 	if err != nil {
 		writeError(w, err)
 		return
 	}
 
-	user, err := h.services.Users.GetById(r.Context(), userID)
+	user, err := h.services.Users.GetByUsername(r.Context(), username)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -51,7 +65,7 @@ func (h *Handler) getUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) updateUser(w http.ResponseWriter, r *http.Request) {
-	userID, err := urlParamInt64(r, "userID")
+	userID, err := urlParamString(r, "userID")
 	if err != nil {
 		writeError(w, err)
 		return
@@ -76,7 +90,7 @@ func (h *Handler) updateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteUser(w http.ResponseWriter, r *http.Request) {
-	userID, err := urlParamInt64(r, "userID")
+	userID, err := urlParamString(r, "userID")
 	if err != nil {
 		writeError(w, err)
 		return

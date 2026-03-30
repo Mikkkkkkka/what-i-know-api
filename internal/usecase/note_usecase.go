@@ -9,96 +9,105 @@ import (
 )
 
 type NoteService interface {
-	GetById(ctx context.Context, id int64) (*domain.Note, error)
-	GetByUserId(ctx context.Context, userId int64) ([]*domain.Note, error)
+	GetById(ctx context.Context, id string) (*domain.Note, error)
+	GetByUserId(ctx context.Context, userId string) ([]*domain.Note, error)
 	CreateNote(ctx context.Context, req CreateNoteRequest) error
 	UpdateNote(ctx context.Context, req UpdateNoteRequest) error
-	DeleteNote(ctx context.Context, id int64) error
+	DeleteNote(ctx context.Context, id string) error
 }
 
 type CreateNoteRequest struct {
-	UserId  int64
-	Name    string
+	Id      string
+	UserId  string
+	Title   string
 	Content string
 }
 
 type UpdateNoteRequest struct {
-	Id      int64
-	Name    string
+	Id      string
+	Title   string
 	Content string
 }
 
 type NoteUseCase struct {
-	notes domain.NoteRepository
+	notesRepo domain.NoteRepository
 }
 
 func NewNoteService(notes domain.NoteRepository) *NoteUseCase {
-	return &NoteUseCase{notes: notes}
+	return &NoteUseCase{
+		notesRepo: notes,
+	}
 }
 
-func (s *NoteUseCase) GetById(ctx context.Context, id int64) (*domain.Note, error) {
-	if id <= 0 {
+func (s *NoteUseCase) GetById(ctx context.Context, id string) (*domain.Note, error) {
+	if strings.TrimSpace(id) == "" {
 		return nil, domain.ErrInvalidInput
 	}
 
-	return s.notes.GetById(ctx, id)
+	return s.notesRepo.GetById(ctx, id)
 }
 
-func (s *NoteUseCase) GetByUserId(ctx context.Context, userId int64) ([]*domain.Note, error) {
-	if userId <= 0 {
+func (s *NoteUseCase) GetByUserId(ctx context.Context, userId string) ([]*domain.Note, error) {
+	if strings.TrimSpace(userId) == "" {
 		return nil, domain.ErrInvalidInput
 	}
 
-	return s.notes.GetByUserId(ctx, userId)
+	return s.notesRepo.GetByUserId(ctx, userId)
 }
 
 func (s *NoteUseCase) CreateNote(ctx context.Context, req CreateNoteRequest) error {
-	name := strings.TrimSpace(req.Name)
+	id := strings.TrimSpace(req.Id)
+	userID := strings.TrimSpace(req.UserId)
+	title := strings.TrimSpace(req.Title)
 	content := strings.TrimSpace(req.Content)
-	if req.UserId <= 0 || name == "" || content == "" {
+	if id == "" || userID == "" || title == "" || content == "" {
 		return domain.ErrInvalidInput
 	}
 
 	note := &domain.Note{
-		UserId:    req.UserId,
-		Name:      name,
+		Id:        id,
+		UserId:    userID,
+		Title:     title,
 		Content:   content,
-		Date:      time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 	}
 
-	return s.notes.Create(ctx, note)
+	if err := s.notesRepo.Create(ctx, note); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *NoteUseCase) UpdateNote(ctx context.Context, req UpdateNoteRequest) error {
-	if req.Id <= 0 {
+	if strings.TrimSpace(req.Id) == "" {
 		return domain.ErrInvalidInput
 	}
 
-	name := strings.TrimSpace(req.Name)
+	name := strings.TrimSpace(req.Title)
 	content := strings.TrimSpace(req.Content)
 	if name == "" || content == "" {
 		return domain.ErrInvalidInput
 	}
 
-	note, err := s.notes.GetById(ctx, req.Id)
+	note, err := s.notesRepo.GetById(ctx, req.Id)
 	if err != nil {
 		return err
 	}
 
-	note.Name = name
+	note.Title = name
 	note.Content = content
 	note.UpdatedAt = time.Now().UTC()
 
-	return s.notes.Update(ctx, note)
+	return s.notesRepo.Update(ctx, note)
 }
 
-func (s *NoteUseCase) DeleteNote(ctx context.Context, id int64) error {
-	if id <= 0 {
+func (s *NoteUseCase) DeleteNote(ctx context.Context, id string) error {
+	if strings.TrimSpace(id) == "" {
 		return domain.ErrInvalidInput
 	}
 
-	return s.notes.Delete(ctx, id)
+	return s.notesRepo.Delete(ctx, id)
 }
 
 var _ NoteService = (*NoteUseCase)(nil)
