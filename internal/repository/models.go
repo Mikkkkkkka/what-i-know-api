@@ -84,7 +84,7 @@ func toDomainNote(model *noteModel) *domain.Note {
 }
 
 type markModel struct {
-	ID        string    `gorm:"primaryKey;autoIncrement"`
+	ID        string    `gorm:"primaryKey"`
 	UserID    string    `gorm:"type:text;not null;index"`
 	Date      time.Time `gorm:"not null"`
 	Content   string    `gorm:"type:text;not null"`

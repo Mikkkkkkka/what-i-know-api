@@ -10,6 +10,7 @@ import (
 )
 
 type createMarkRequest struct {
+	ID      string    `validate:"required"`
 	UserID  string    `json:"user_id"`
 	Date    time.Time `json:"date"`
 	Content string    `json:"content"`
@@ -36,6 +37,7 @@ func (h *Handler) createMark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := h.services.Marks.CreateMark(r.Context(), usecase.CreateMarkRequest{
+		Id:      request.ID,
 		UserId:  request.UserID,
 		Date:    request.Date,
 		Content: request.Content,

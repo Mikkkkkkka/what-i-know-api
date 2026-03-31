@@ -53,13 +53,15 @@ func (s *MarkUseCase) GetByUserId(ctx context.Context, userId string) ([]*domain
 }
 
 func (s *MarkUseCase) CreateMark(ctx context.Context, req CreateMarkRequest) error {
+	id := strings.TrimSpace(req.Id)
 	userID := strings.TrimSpace(req.UserId)
 	content := strings.TrimSpace(req.Content)
-	if userID == "" || req.Date.IsZero() || content == "" {
+	if id == "" || userID == "" || req.Date.IsZero() || content == "" {
 		return domain.ErrInvalidInput
 	}
 
 	mark := &domain.Mark{
+		Id:        id,
 		UserId:    userID,
 		Date:      req.Date.UTC(),
 		Content:   content,
