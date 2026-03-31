@@ -10,7 +10,7 @@ import (
 )
 
 type createMarkRequest struct {
-	ID      string    `validate:"required"`
+	ID      string    `json:"id"`
 	UserID  string    `json:"user_id"`
 	Date    time.Time `json:"date"`
 	Content string    `json:"content"`
