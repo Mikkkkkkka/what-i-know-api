@@ -48,8 +48,8 @@ func newNoteResponses(notes []*domain.Note) []noteResponse {
 }
 
 type markResponse struct {
-	ID        int64     `json:"id"`
-	UserID    int64     `json:"user_id"`
+	ID        string    `json:"id"`
+	UserID    string    `json:"user_id"`
 	Date      time.Time `json:"date"`
 	Content   string    `json:"content"`
 	UpdatedAt time.Time `json:"updated_at"`
