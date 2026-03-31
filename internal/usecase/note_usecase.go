@@ -84,9 +84,9 @@ func (s *NoteUseCase) UpdateNote(ctx context.Context, req UpdateNoteRequest) err
 		return domain.ErrInvalidInput
 	}
 
-	name := strings.TrimSpace(req.Title)
+	title := strings.TrimSpace(req.Title)
 	content := strings.TrimSpace(req.Content)
-	if name == "" || content == "" {
+	if title == "" || content == "" {
 		return domain.ErrInvalidInput
 	}
 
@@ -95,7 +95,7 @@ func (s *NoteUseCase) UpdateNote(ctx context.Context, req UpdateNoteRequest) err
 		return err
 	}
 
-	note.Title = name
+	note.Title = title
 	note.Content = content
 	note.UpdatedAt = time.Now().UTC()
 
