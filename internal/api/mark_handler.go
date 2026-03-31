@@ -37,8 +37,8 @@ func (h *Handler) createMark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := h.services.Marks.CreateMark(r.Context(), usecase.CreateMarkRequest{
-		Id:      request.ID,
-		UserId:  request.UserID,
+		ID:      request.ID,
+		UserID:  request.UserID,
 		Date:    request.Date,
 		Content: request.Content,
 	})
@@ -57,7 +57,7 @@ func (h *Handler) getMark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mark, err := h.services.Marks.GetById(r.Context(), markID)
+	mark, err := h.services.Marks.GetByID(r.Context(), markID)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -73,7 +73,7 @@ func (h *Handler) listMarksByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	marks, err := h.services.Marks.GetByUserId(r.Context(), userID)
+	marks, err := h.services.Marks.GetByUserID(r.Context(), userID)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -96,7 +96,7 @@ func (h *Handler) updateMark(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.services.Marks.UpdateMark(r.Context(), usecase.UpdateMarkRequest{
-		Id:      markID,
+		ID:      markID,
 		Content: request.Content,
 	})
 	if err != nil {
@@ -119,5 +119,5 @@ func (h *Handler) deleteMark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusNoContent, nil)
+	w.WriteHeader(http.StatusNoContent)
 }

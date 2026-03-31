@@ -16,7 +16,7 @@ func NewMarkRepository(db *gorm.DB) *MarkRepository {
 	return &MarkRepository{db: db}
 }
 
-func (r *MarkRepository) GetById(ctx context.Context, id string) (*domain.Mark, error) {
+func (r *MarkRepository) GetByID(ctx context.Context, id string) (*domain.Mark, error) {
 	var model markModel
 	if err := r.db.WithContext(ctx).First(&model, id).Error; err != nil {
 		return nil, translateError(err)
@@ -25,9 +25,9 @@ func (r *MarkRepository) GetById(ctx context.Context, id string) (*domain.Mark, 
 	return toDomainMark(&model), nil
 }
 
-func (r *MarkRepository) GetByUserId(ctx context.Context, userId string) ([]*domain.Mark, error) {
+func (r *MarkRepository) GetByUserID(ctx context.Context, userID string) ([]*domain.Mark, error) {
 	var models []markModel
-	if err := r.db.WithContext(ctx).Where("user_id = ?", userId).Order("date DESC, id DESC").Find(&models).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("user_id = ?", userID).Order("date DESC").Find(&models).Error; err != nil {
 		return nil, translateError(err)
 	}
 
@@ -45,7 +45,7 @@ func (r *MarkRepository) Create(ctx context.Context, mark *domain.Mark) error {
 		return translateError(err)
 	}
 
-	mark.Id = model.ID
+	mark.ID = model.ID
 	mark.UpdatedAt = model.UpdatedAt
 	return nil
 }
@@ -54,7 +54,7 @@ func (r *MarkRepository) Update(ctx context.Context, mark *domain.Mark) error {
 	model := toMarkModel(mark)
 	result := r.db.WithContext(ctx).
 		Model(&markModel{}).
-		Where("id = ?", mark.Id).
+		Where("id = ?", mark.ID).
 		Updates(map[string]any{
 			"user_id":    model.UserID,
 			"date":       model.Date,
@@ -69,7 +69,7 @@ func (r *MarkRepository) Update(ctx context.Context, mark *domain.Mark) error {
 	}
 
 	var updated markModel
-	if err := r.db.WithContext(ctx).First(&updated, mark.Id).Error; err != nil {
+	if err := r.db.WithContext(ctx).First(&updated, mark.ID).Error; err != nil {
 		return translateError(err)
 	}
 	mark.UpdatedAt = updated.UpdatedAt

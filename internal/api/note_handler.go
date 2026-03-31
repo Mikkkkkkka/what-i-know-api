@@ -9,7 +9,7 @@ import (
 )
 
 type createNoteRequest struct {
-	Id      string `json:"id"`
+	ID      string `json:"id"`
 	UserID  string `json:"user_id"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
@@ -37,8 +37,8 @@ func (h *Handler) createNote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := h.services.Notes.CreateNote(r.Context(), usecase.CreateNoteRequest{
-		Id:      request.Id,
-		UserId:  request.UserID,
+		ID:      request.ID,
+		UserID:  request.UserID,
 		Title:   request.Title,
 		Content: request.Content,
 	})
@@ -57,7 +57,7 @@ func (h *Handler) getNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	note, err := h.services.Notes.GetById(r.Context(), noteID)
+	note, err := h.services.Notes.GetByID(r.Context(), noteID)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -73,7 +73,7 @@ func (h *Handler) listNotesByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notes, err := h.services.Notes.GetByUserId(r.Context(), userID)
+	notes, err := h.services.Notes.GetByUserID(r.Context(), userID)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -96,7 +96,7 @@ func (h *Handler) updateNote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.services.Notes.UpdateNote(r.Context(), usecase.UpdateNoteRequest{
-		Id:      noteID,
+		ID:      noteID,
 		Title:   request.Title,
 		Content: request.Content,
 	})
@@ -120,5 +120,5 @@ func (h *Handler) deleteNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusNoContent, nil)
+	w.WriteHeader(http.StatusNoContent)
 }

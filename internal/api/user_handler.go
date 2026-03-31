@@ -78,7 +78,7 @@ func (h *Handler) updateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.services.Users.UpdateUser(r.Context(), usecase.UpdateUserRequest{
-		Id:       userID,
+		ID:       userID,
 		Username: request.Username,
 	})
 	if err != nil {
@@ -101,5 +101,5 @@ func (h *Handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusNoContent, nil)
+	w.WriteHeader(http.StatusNoContent)
 }

@@ -9,7 +9,7 @@ import (
 )
 
 type UserService interface {
-	GetById(ctx context.Context, id string) (*domain.User, error)
+	GetByID(ctx context.Context, id string) (*domain.User, error)
 	GetByUsername(ctx context.Context, username string) (*domain.User, error)
 	CreateUser(ctx context.Context, request CreateUserRequest) (string, error)
 	UpdateUser(ctx context.Context, request UpdateUserRequest) error
@@ -22,7 +22,7 @@ type CreateUserRequest struct {
 }
 
 type UpdateUserRequest struct {
-	Id       string
+	ID       string
 	Username string
 	// updating password isn't implemented yet
 }
@@ -41,12 +41,12 @@ func NewUserService(users domain.UserRepository, idGenerator IDGenerator, passwo
 	}
 }
 
-func (s *UserUseCase) GetById(ctx context.Context, id string) (*domain.User, error) {
+func (s *UserUseCase) GetByID(ctx context.Context, id string) (*domain.User, error) {
 	if strings.TrimSpace(id) == "" {
 		return nil, domain.ErrInvalidInput
 	}
 
-	return s.userRepo.GetById(ctx, id)
+	return s.userRepo.GetByID(ctx, id)
 }
 
 func (s *UserUseCase) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
@@ -76,7 +76,7 @@ func (s *UserUseCase) CreateUser(ctx context.Context, request CreateUserRequest)
 	}
 
 	user := &domain.User{
-		Id:        id,
+		ID:        id,
 		Username:  username,
 		Password:  hashedPassword,
 		CreatedAt: time.Now().UTC(),
@@ -86,11 +86,11 @@ func (s *UserUseCase) CreateUser(ctx context.Context, request CreateUserRequest)
 		return "", err
 	}
 
-	return user.Id, nil
+	return user.ID, nil
 }
 
 func (s *UserUseCase) UpdateUser(ctx context.Context, request UpdateUserRequest) error {
-	if strings.TrimSpace(request.Id) == "" {
+	if strings.TrimSpace(request.ID) == "" {
 		return domain.ErrInvalidInput
 	}
 
@@ -99,7 +99,7 @@ func (s *UserUseCase) UpdateUser(ctx context.Context, request UpdateUserRequest)
 		return domain.ErrInvalidInput
 	}
 
-	user, err := s.userRepo.GetById(ctx, request.Id)
+	user, err := s.userRepo.GetByID(ctx, request.ID)
 	if err != nil {
 		return err
 	}

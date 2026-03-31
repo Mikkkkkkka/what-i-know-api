@@ -16,7 +16,7 @@ func NewNoteRepository(db *gorm.DB) *NoteRepository {
 	return &NoteRepository{db: db}
 }
 
-func (r *NoteRepository) GetById(ctx context.Context, id string) (*domain.Note, error) {
+func (r *NoteRepository) GetByID(ctx context.Context, id string) (*domain.Note, error) {
 	var model noteModel
 	if err := r.db.WithContext(ctx).First(&model, id).Error; err != nil {
 		return nil, translateError(err)
@@ -25,9 +25,9 @@ func (r *NoteRepository) GetById(ctx context.Context, id string) (*domain.Note, 
 	return toDomainNote(&model), nil
 }
 
-func (r *NoteRepository) GetByUserId(ctx context.Context, userId string) ([]*domain.Note, error) {
+func (r *NoteRepository) GetByUserID(ctx context.Context, userID string) ([]*domain.Note, error) {
 	var models []noteModel
-	if err := r.db.WithContext(ctx).Where("user_id = ?", userId).Order("title").Find(&models).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("user_id = ?", userID).Order("title").Find(&models).Error; err != nil {
 		return nil, translateError(err)
 	}
 
@@ -53,7 +53,7 @@ func (r *NoteRepository) Update(ctx context.Context, note *domain.Note) error {
 	model := toNoteModel(note)
 	result := r.db.WithContext(ctx).
 		Model(&noteModel{}).
-		Where("id = ?", note.Id).
+		Where("id = ?", note.ID).
 		Updates(map[string]any{
 			"user_id":    model.UserID,
 			"title":      model.Title,
@@ -68,7 +68,7 @@ func (r *NoteRepository) Update(ctx context.Context, note *domain.Note) error {
 	}
 
 	var updated noteModel
-	if err := r.db.WithContext(ctx).First(&updated, note.Id).Error; err != nil {
+	if err := r.db.WithContext(ctx).First(&updated, note.ID).Error; err != nil {
 		return translateError(err)
 	}
 	note.UpdatedAt = updated.UpdatedAt

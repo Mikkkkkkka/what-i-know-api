@@ -14,7 +14,7 @@ type userResponse struct {
 
 func newUserResponse(user *domain.User) userResponse {
 	return userResponse{
-		ID:        user.Id,
+		ID:        user.ID,
 		Username:  user.Username,
 		CreatedAt: user.CreatedAt,
 	}
@@ -30,8 +30,8 @@ type noteResponse struct {
 
 func newNoteResponse(note *domain.Note) noteResponse {
 	return noteResponse{
-		ID:        note.Id,
-		UserID:    note.UserId,
+		ID:        note.ID,
+		UserID:    note.UserID,
 		Title:     note.Title,
 		Content:   note.Content,
 		UpdatedAt: note.UpdatedAt,
@@ -57,8 +57,8 @@ type markResponse struct {
 
 func newMarkResponse(mark *domain.Mark) markResponse {
 	return markResponse{
-		ID:        mark.Id,
-		UserID:    mark.UserId,
+		ID:        mark.ID,
+		UserID:    mark.UserID,
 		Date:      mark.Date,
 		Content:   mark.Content,
 		UpdatedAt: mark.UpdatedAt,
