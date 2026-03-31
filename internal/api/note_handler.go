@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"what-i-know-api/internal/domain"
 	"what-i-know-api/internal/usecase"
 )
 
@@ -22,32 +21,21 @@ type updateNoteRequest struct {
 
 func (h *Handler) registerNoteRoutes(r chi.Router) {
 	r.Route("/notes", func(r chi.Router) {
-		r.With(h.requireAuth).Post("/", h.createNote)
-		r.With(h.requireAuth).Get("/{noteID}", h.getNote)
-		r.With(h.requireAuth).Patch("/{noteID}", h.updateNote)
-		r.With(h.requireAuth).Delete("/{noteID}", h.deleteNote)
+		r.With().Post("/", h.createNote)
+		r.With().Get("/{noteID}", h.getNote)
+		r.With().Patch("/{noteID}", h.updateNote)
+		r.With().Delete("/{noteID}", h.deleteNote)
 	})
 }
 
 func (h *Handler) createNote(w http.ResponseWriter, r *http.Request) {
-	session, err := currentSession(r)
-	if err != nil {
-		writeError(w, err)
-		return
-	}
-
 	var request createNoteRequest
 	if err := decodeJSON(r, &request); err != nil {
 		writeError(w, err)
 		return
 	}
 
-	if request.UserID != session.UserId {
-		writeError(w, domain.ErrForbidden)
-		return
-	}
-
-	id, err := h.services.Notes.CreateNote(r.Context(), usecase.CreateNoteRequest{
+	err := h.services.Notes.CreateNote(r.Context(), usecase.CreateNoteRequest{
 		UserId:  request.UserID,
 		Title:   request.Name,
 		Content: request.Content,
@@ -57,16 +45,10 @@ func (h *Handler) createNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, map[string]string{"id": id})
+	writeJSON(w, http.StatusCreated, map[string]string{"status": "created"})
 }
 
 func (h *Handler) getNote(w http.ResponseWriter, r *http.Request) {
-	session, err := currentSession(r)
-	if err != nil {
-		writeError(w, err)
-		return
-	}
-
 	noteID, err := urlParamString(r, "noteID")
 	if err != nil {
 		writeError(w, err)
@@ -78,28 +60,14 @@ func (h *Handler) getNote(w http.ResponseWriter, r *http.Request) {
 		writeError(w, err)
 		return
 	}
-	if note.UserId != session.UserId {
-		writeError(w, domain.ErrForbidden)
-		return
-	}
 
 	writeJSON(w, http.StatusOK, newNoteResponse(note))
 }
 
 func (h *Handler) listNotesByUser(w http.ResponseWriter, r *http.Request) {
-	session, err := currentSession(r)
-	if err != nil {
-		writeError(w, err)
-		return
-	}
-
 	userID, err := urlParamString(r, "userID")
 	if err != nil {
 		writeError(w, err)
-		return
-	}
-	if userID != session.UserId {
-		writeError(w, domain.ErrForbidden)
 		return
 	}
 
@@ -113,25 +81,15 @@ func (h *Handler) listNotesByUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) updateNote(w http.ResponseWriter, r *http.Request) {
-	session, err := currentSession(r)
-	if err != nil {
-		writeError(w, err)
-		return
-	}
-
 	noteID, err := urlParamString(r, "noteID")
 	if err != nil {
 		writeError(w, err)
 		return
 	}
 
-	note, err := h.services.Notes.GetById(r.Context(), noteID)
+	_, err = h.services.Notes.GetById(r.Context(), noteID)
 	if err != nil {
 		writeError(w, err)
-		return
-	}
-	if note.UserId != session.UserId {
-		writeError(w, domain.ErrForbidden)
 		return
 	}
 
@@ -155,25 +113,15 @@ func (h *Handler) updateNote(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteNote(w http.ResponseWriter, r *http.Request) {
-	session, err := currentSession(r)
-	if err != nil {
-		writeError(w, err)
-		return
-	}
-
 	noteID, err := urlParamString(r, "noteID")
 	if err != nil {
 		writeError(w, err)
 		return
 	}
 
-	note, err := h.services.Notes.GetById(r.Context(), noteID)
+	_, err = h.services.Notes.GetById(r.Context(), noteID)
 	if err != nil {
 		writeError(w, err)
-		return
-	}
-	if note.UserId != session.UserId {
-		writeError(w, domain.ErrForbidden)
 		return
 	}
 

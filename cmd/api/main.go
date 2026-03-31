@@ -39,22 +39,18 @@ func main() {
 	userRepository := repository.NewUserRepository(db)
 	noteRepository := repository.NewNoteRepository(db)
 	markRepository := repository.NewMarkRepository(db)
-	sessionRepository := repository.NewSessionRepository(db)
 
 	idGenerator := security.NewUUIDGenerator()
 	passwordHasher := security.NewBcryptPasswordHasher(0)
-	tokenGenerator := security.NewRandomTokenGenerator(0)
 
 	userService := usecase.NewUserService(userRepository, idGenerator, passwordHasher)
-	noteService := usecase.NewNoteService(noteRepository, idGenerator)
+	noteService := usecase.NewNoteService(noteRepository)
 	markService := usecase.NewMarkService(markRepository)
-	authService := usecase.NewAuthService(userRepository, sessionRepository, passwordHasher, tokenGenerator)
 
 	apiHandler := api.NewHandler(api.Services{
 		Users: userService,
 		Notes: noteService,
 		Marks: markService,
-		Auth:  authService,
 	})
 
 	httpServer := server.New(appConfig.HTTP, apiHandler)

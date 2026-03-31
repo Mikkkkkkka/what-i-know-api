@@ -16,6 +16,5 @@ func AutoMigrate(db *gorm.DB) error {
 		&userModel{},
 		&noteModel{},
 		&markModel{},
-		&sessionModel{},
 	)
 }

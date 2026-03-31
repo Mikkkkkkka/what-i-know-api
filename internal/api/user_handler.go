@@ -24,8 +24,8 @@ func (h *Handler) registerUserRoutes(r chi.Router) {
 		r.Patch("/{userID}", h.updateUser)
 		r.Delete("/{userID}", h.deleteUser)
 
-		r.With(h.requireAuth).Get("/{userID}/notes", h.listNotesByUser)
-		r.With(h.requireAuth).Get("/{userID}/marks", h.listMarksByUser)
+		r.With().Get("/{userID}/notes", h.listNotesByUser)
+		r.With().Get("/{userID}/marks", h.listMarksByUser)
 	})
 }
 

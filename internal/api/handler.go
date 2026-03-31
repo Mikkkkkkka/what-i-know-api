@@ -10,7 +10,6 @@ type Services struct {
 	Users usecase.UserService
 	Notes usecase.NoteService
 	Marks usecase.MarkService
-	Auth  usecase.AuthService
 }
 
 type Handler struct {
@@ -25,5 +24,4 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	h.registerUserRoutes(r)
 	h.registerNoteRoutes(r)
 	h.registerMarkRoutes(r)
-	h.registerAuthRoutes(r)
 }
