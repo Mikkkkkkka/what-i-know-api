@@ -20,7 +20,7 @@ type updateUserRequest struct {
 func (h *Handler) registerUserRoutes(r chi.Router) {
 	r.Route("/users", func(r chi.Router) {
 		r.Post("/", h.createUser)
-		r.Get("/{username}", h.getUser)
+		r.Get("/{userID}", h.getUser)
 		r.Patch("/{userID}", h.updateUser)
 		r.Delete("/{userID}", h.deleteUser)
 
@@ -49,13 +49,13 @@ func (h *Handler) createUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getUser(w http.ResponseWriter, r *http.Request) {
-	username, err := urlParamString(r, "username")
+	userID, err := urlParamString(r, "userID")
 	if err != nil {
 		writeError(w, err)
 		return
 	}
 
-	user, err := h.services.Users.GetByUsername(r.Context(), username)
+	user, err := h.services.Users.GetByID(r.Context(), userID)
 	if err != nil {
 		writeError(w, err)
 		return
