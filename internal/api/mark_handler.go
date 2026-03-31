@@ -89,12 +89,6 @@ func (h *Handler) updateMark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.services.Marks.GetById(r.Context(), markID)
-	if err != nil {
-		writeError(w, err)
-		return
-	}
-
 	var request updateMarkRequest
 	if err := decodeJSON(r, &request); err != nil {
 		writeError(w, err)
@@ -115,12 +109,6 @@ func (h *Handler) updateMark(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) deleteMark(w http.ResponseWriter, r *http.Request) {
 	markID, err := urlParamString(r, "markID")
-	if err != nil {
-		writeError(w, err)
-		return
-	}
-
-	_, err = h.services.Marks.GetById(r.Context(), markID)
 	if err != nil {
 		writeError(w, err)
 		return

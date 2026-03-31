@@ -89,12 +89,6 @@ func (h *Handler) updateNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.services.Notes.GetById(r.Context(), noteID)
-	if err != nil {
-		writeError(w, err)
-		return
-	}
-
 	var request updateNoteRequest
 	if err := decodeJSON(r, &request); err != nil {
 		writeError(w, err)
@@ -116,12 +110,6 @@ func (h *Handler) updateNote(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) deleteNote(w http.ResponseWriter, r *http.Request) {
 	noteID, err := urlParamString(r, "noteID")
-	if err != nil {
-		writeError(w, err)
-		return
-	}
-
-	_, err = h.services.Notes.GetById(r.Context(), noteID)
 	if err != nil {
 		writeError(w, err)
 		return
