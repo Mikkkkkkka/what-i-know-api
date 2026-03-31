@@ -3,7 +3,7 @@ package security
 import (
 	"golang.org/x/crypto/bcrypt"
 
-	"what-i-know-api/internal/usecase"
+	"github.com/mikkkkkkka/what-i-know-api/internal/usecase"
 )
 
 type BcryptPasswordHasher struct {

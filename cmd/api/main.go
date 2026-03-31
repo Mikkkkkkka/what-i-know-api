@@ -9,12 +9,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"what-i-know-api/internal/api"
-	"what-i-know-api/internal/config"
-	"what-i-know-api/internal/repository"
-	"what-i-know-api/internal/security"
-	"what-i-know-api/internal/server"
-	"what-i-know-api/internal/usecase"
+	"github.com/mikkkkkkka/what-i-know-api/internal/api"
+	"github.com/mikkkkkkka/what-i-know-api/internal/config"
+	"github.com/mikkkkkkka/what-i-know-api/internal/repository"
+	"github.com/mikkkkkkka/what-i-know-api/internal/security"
+	"github.com/mikkkkkkka/what-i-know-api/internal/server"
+	"github.com/mikkkkkkka/what-i-know-api/internal/usecase"
 )
 
 func main() {

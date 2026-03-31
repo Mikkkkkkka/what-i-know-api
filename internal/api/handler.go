@@ -3,7 +3,7 @@ package api
 import (
 	"github.com/go-chi/chi/v5"
 
-	"what-i-know-api/internal/usecase"
+	"github.com/mikkkkkkka/what-i-know-api/internal/usecase"
 )
 
 type Services struct {

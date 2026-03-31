@@ -3,7 +3,7 @@ package security
 import (
 	"github.com/google/uuid"
 
-	"what-i-know-api/internal/usecase"
+	"github.com/mikkkkkkka/what-i-know-api/internal/usecase"
 )
 
 type UUIDGenerator struct{}

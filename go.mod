@@ -1,4 +1,4 @@
-module what-i-know-api
+module github.com/mikkkkkkka/what-i-know-api
 
 go 1.26
 

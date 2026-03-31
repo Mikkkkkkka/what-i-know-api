@@ -8,8 +8,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	"what-i-know-api/internal/api"
-	"what-i-know-api/internal/config"
+	"github.com/mikkkkkkka/what-i-know-api/internal/api"
+	"github.com/mikkkkkkka/what-i-know-api/internal/config"
 )
 
 type Server struct {

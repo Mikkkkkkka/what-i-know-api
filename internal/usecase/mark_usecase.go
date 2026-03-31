@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"what-i-know-api/internal/domain"
+	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
 
 type MarkService interface {

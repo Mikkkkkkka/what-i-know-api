@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"what-i-know-api/internal/domain"
+	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
 
 type errorResponse struct {
@@ -80,23 +80,4 @@ func urlParamString(r *http.Request, key string) (string, error) {
 	}
 
 	return value, nil
-}
-
-func bearerToken(r *http.Request) (string, error) {
-	header := strings.TrimSpace(r.Header.Get("Authorization"))
-	if header == "" {
-		return "", domain.ErrInvalidInput
-	}
-
-	const prefix = "Bearer "
-	if !strings.HasPrefix(header, prefix) {
-		return "", domain.ErrInvalidInput
-	}
-
-	token := strings.TrimSpace(strings.TrimPrefix(header, prefix))
-	if token == "" {
-		return "", domain.ErrInvalidInput
-	}
-
-	return token, nil
 }

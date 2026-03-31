@@ -3,7 +3,7 @@ package api
 import (
 	"time"
 
-	"what-i-know-api/internal/domain"
+	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
 
 type userResponse struct {
@@ -72,14 +72,4 @@ func newMarkResponses(marks []*domain.Mark) []markResponse {
 	}
 
 	return response
-}
-
-type sessionResponse struct {
-	Token string `json:"token"`
-}
-
-func newSessionResponse(session domain.Session) sessionResponse {
-	return sessionResponse{
-		Token: session.Token,
-	}
 }

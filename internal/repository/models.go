@@ -3,7 +3,7 @@ package repository
 import (
 	"time"
 
-	"what-i-know-api/internal/domain"
+	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
 
 type userModel struct {
