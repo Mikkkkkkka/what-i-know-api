@@ -9,8 +9,9 @@ import (
 )
 
 type createNoteRequest struct {
+	ID      string `json:"id"`
 	UserID  string `json:"user_id"`
-	Name    string `json:"name"`
+	Title   string `json:"title"`
 	Content string `json:"content"`
 }
 
@@ -36,8 +37,9 @@ func (h *Handler) createNote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := h.services.Notes.CreateNote(r.Context(), usecase.CreateNoteRequest{
-		UserId:  request.UserID,
-		Title:   request.Name,
+		ID:      request.ID,
+		UserID:  request.UserID,
+		Title:   request.Title,
 		Content: request.Content,
 	})
 	if err != nil {
@@ -55,7 +57,7 @@ func (h *Handler) getNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	note, err := h.services.Notes.GetById(r.Context(), noteID)
+	note, err := h.services.Notes.GetByID(r.Context(), noteID)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -71,7 +73,7 @@ func (h *Handler) listNotesByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notes, err := h.services.Notes.GetByUserId(r.Context(), userID)
+	notes, err := h.services.Notes.GetByUserID(r.Context(), userID)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -87,12 +89,6 @@ func (h *Handler) updateNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.services.Notes.GetById(r.Context(), noteID)
-	if err != nil {
-		writeError(w, err)
-		return
-	}
-
 	var request updateNoteRequest
 	if err := decodeJSON(r, &request); err != nil {
 		writeError(w, err)
@@ -100,7 +96,7 @@ func (h *Handler) updateNote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.services.Notes.UpdateNote(r.Context(), usecase.UpdateNoteRequest{
-		Id:      noteID,
+		ID:      noteID,
 		Title:   request.Title,
 		Content: request.Content,
 	})
@@ -119,16 +115,10 @@ func (h *Handler) deleteNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.services.Notes.GetById(r.Context(), noteID)
-	if err != nil {
-		writeError(w, err)
-		return
-	}
-
 	if err := h.services.Notes.DeleteNote(r.Context(), noteID); err != nil {
 		writeError(w, err)
 		return
 	}
 
-	writeJSON(w, http.StatusNoContent, nil)
+	w.WriteHeader(http.StatusNoContent)
 }

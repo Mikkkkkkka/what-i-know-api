@@ -23,7 +23,7 @@ func toUserModel(user *domain.User) *userModel {
 	}
 
 	return &userModel{
-		ID:        user.Id,
+		ID:        user.ID,
 		Username:  user.Username,
 		Password:  user.Password,
 		CreatedAt: user.CreatedAt,
@@ -36,7 +36,7 @@ func toDomainUser(model *userModel) *domain.User {
 	}
 
 	return &domain.User{
-		Id:        model.ID,
+		ID:        model.ID,
 		Username:  model.Username,
 		Password:  model.Password,
 		CreatedAt: model.CreatedAt,
@@ -61,8 +61,8 @@ func toNoteModel(note *domain.Note) *noteModel {
 	}
 
 	return &noteModel{
-		ID:        note.Id,
-		UserID:    note.UserId,
+		ID:        note.ID,
+		UserID:    note.UserID,
 		Title:     note.Title,
 		Content:   note.Content,
 		UpdatedAt: note.UpdatedAt,
@@ -75,8 +75,8 @@ func toDomainNote(model *noteModel) *domain.Note {
 	}
 
 	return &domain.Note{
-		Id:        model.ID,
-		UserId:    model.UserID,
+		ID:        model.ID,
+		UserID:    model.UserID,
 		Title:     model.Title,
 		Content:   model.Content,
 		UpdatedAt: model.UpdatedAt,
@@ -84,9 +84,9 @@ func toDomainNote(model *noteModel) *domain.Note {
 }
 
 type markModel struct {
-	ID        string    `gorm:"primaryKey;autoIncrement"`
-	UserID    string    `gorm:"type:text;not null;index"`
-	Date      time.Time `gorm:"not null"`
+	ID        string    `gorm:"primaryKey;type:text"`
+	UserID    string    `gorm:"type:text;not null;index:idx_mark_user_date,unique"`
+	Date      time.Time `gorm:"not null;index:idx_mark_user_date,unique"`
 	Content   string    `gorm:"type:text;not null"`
 	UpdatedAt time.Time `gorm:"not null;autoUpdateTime"`
 }
@@ -101,8 +101,8 @@ func toMarkModel(mark *domain.Mark) *markModel {
 	}
 
 	return &markModel{
-		ID:        mark.Id,
-		UserID:    mark.UserId,
+		ID:        mark.ID,
+		UserID:    mark.UserID,
 		Date:      mark.Date,
 		Content:   mark.Content,
 		UpdatedAt: mark.UpdatedAt,
@@ -115,8 +115,8 @@ func toDomainMark(model *markModel) *domain.Mark {
 	}
 
 	return &domain.Mark{
-		Id:        model.ID,
-		UserId:    model.UserID,
+		ID:        model.ID,
+		UserID:    model.UserID,
 		Date:      model.Date,
 		Content:   model.Content,
 		UpdatedAt: model.UpdatedAt,

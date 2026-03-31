@@ -9,22 +9,22 @@ import (
 )
 
 type MarkService interface {
-	GetById(ctx context.Context, id string) (*domain.Mark, error)
-	GetByUserId(ctx context.Context, userId string) ([]*domain.Mark, error)
+	GetByID(ctx context.Context, id string) (*domain.Mark, error)
+	GetByUserID(ctx context.Context, userID string) ([]*domain.Mark, error)
 	CreateMark(ctx context.Context, req CreateMarkRequest) error
 	UpdateMark(ctx context.Context, req UpdateMarkRequest) error
 	DeleteMark(ctx context.Context, id string) error
 }
 
 type CreateMarkRequest struct {
-	Id      string
-	UserId  string
+	ID      string
+	UserID  string
 	Date    time.Time
 	Content string
 }
 
 type UpdateMarkRequest struct {
-	Id      string
+	ID      string
 	Content string
 }
 
@@ -36,31 +36,33 @@ func NewMarkService(marks domain.MarkRepository) *MarkUseCase {
 	return &MarkUseCase{marksRepo: marks}
 }
 
-func (s *MarkUseCase) GetById(ctx context.Context, id string) (*domain.Mark, error) {
+func (s *MarkUseCase) GetByID(ctx context.Context, id string) (*domain.Mark, error) {
 	if strings.TrimSpace(id) == "" {
 		return nil, domain.ErrInvalidInput
 	}
 
-	return s.marksRepo.GetById(ctx, id)
+	return s.marksRepo.GetByID(ctx, id)
 }
 
-func (s *MarkUseCase) GetByUserId(ctx context.Context, userId string) ([]*domain.Mark, error) {
-	if strings.TrimSpace(userId) == "" {
+func (s *MarkUseCase) GetByUserID(ctx context.Context, userID string) ([]*domain.Mark, error) {
+	if strings.TrimSpace(userID) == "" {
 		return nil, domain.ErrInvalidInput
 	}
 
-	return s.marksRepo.GetByUserId(ctx, userId)
+	return s.marksRepo.GetByUserID(ctx, userID)
 }
 
 func (s *MarkUseCase) CreateMark(ctx context.Context, req CreateMarkRequest) error {
-	userID := strings.TrimSpace(req.UserId)
+	id := strings.TrimSpace(req.ID)
+	userID := strings.TrimSpace(req.UserID)
 	content := strings.TrimSpace(req.Content)
-	if userID == "" || req.Date.IsZero() || content == "" {
+	if id == "" || userID == "" || req.Date.IsZero() || content == "" {
 		return domain.ErrInvalidInput
 	}
 
 	mark := &domain.Mark{
-		UserId:    userID,
+		ID:        id,
+		UserID:    userID,
 		Date:      req.Date.UTC(),
 		Content:   content,
 		UpdatedAt: time.Now().UTC(),
@@ -74,7 +76,7 @@ func (s *MarkUseCase) CreateMark(ctx context.Context, req CreateMarkRequest) err
 }
 
 func (s *MarkUseCase) UpdateMark(ctx context.Context, req UpdateMarkRequest) error {
-	if strings.TrimSpace(req.Id) == "" {
+	if strings.TrimSpace(req.ID) == "" {
 		return domain.ErrInvalidInput
 	}
 
@@ -83,7 +85,7 @@ func (s *MarkUseCase) UpdateMark(ctx context.Context, req UpdateMarkRequest) err
 		return domain.ErrInvalidInput
 	}
 
-	mark, err := s.marksRepo.GetById(ctx, req.Id)
+	mark, err := s.marksRepo.GetByID(ctx, req.ID)
 	if err != nil {
 		return err
 	}

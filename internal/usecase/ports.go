@@ -8,7 +8,3 @@ type PasswordHasher interface {
 type IDGenerator interface {
 	Generate() (string, error)
 }
-
-type TokenGenerator interface {
-	Generate() (string, error)
-}
