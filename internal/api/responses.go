@@ -75,17 +75,11 @@ func newMarkResponses(marks []*domain.Mark) []markResponse {
 }
 
 type sessionResponse struct {
-	ID       int64  `json:"id"`
-	UserID   int64  `json:"user_id"`
-	Username string `json:"username"`
-	Token    string `json:"token"`
+	Token string `json:"token"`
 }
 
 func newSessionResponse(session domain.Session) sessionResponse {
 	return sessionResponse{
-		ID:       session.Id,
-		UserID:   session.UserId,
-		Username: session.Username,
-		Token:    session.Token,
+		Token: session.Token,
 	}
 }

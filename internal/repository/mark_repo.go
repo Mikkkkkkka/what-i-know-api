@@ -16,7 +16,7 @@ func NewMarkRepository(db *gorm.DB) *MarkRepository {
 	return &MarkRepository{db: db}
 }
 
-func (r *MarkRepository) GetById(ctx context.Context, id int64) (*domain.Mark, error) {
+func (r *MarkRepository) GetById(ctx context.Context, id string) (*domain.Mark, error) {
 	var model markModel
 	if err := r.db.WithContext(ctx).First(&model, id).Error; err != nil {
 		return nil, translateError(err)
@@ -25,7 +25,7 @@ func (r *MarkRepository) GetById(ctx context.Context, id int64) (*domain.Mark, e
 	return toDomainMark(&model), nil
 }
 
-func (r *MarkRepository) GetByUserId(ctx context.Context, userId int64) ([]*domain.Mark, error) {
+func (r *MarkRepository) GetByUserId(ctx context.Context, userId string) ([]*domain.Mark, error) {
 	var models []markModel
 	if err := r.db.WithContext(ctx).Where("user_id = ?", userId).Order("date DESC, id DESC").Find(&models).Error; err != nil {
 		return nil, translateError(err)
@@ -76,7 +76,7 @@ func (r *MarkRepository) Update(ctx context.Context, mark *domain.Mark) error {
 	return nil
 }
 
-func (r *MarkRepository) Delete(ctx context.Context, id int64) error {
+func (r *MarkRepository) Delete(ctx context.Context, id string) error {
 	result := r.db.WithContext(ctx).Delete(&markModel{}, id)
 	if result.Error != nil {
 		return translateError(result.Error)

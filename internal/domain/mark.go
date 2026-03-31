@@ -6,17 +6,17 @@ import (
 )
 
 type Mark struct {
-	Id        int64
-	UserId    int64
+	Id        string // Generated on client via UUID v4. Slim (1/2^122) chance of collision!
+	UserId    string
 	Date      time.Time
 	Content   string // Markdown string
 	UpdatedAt time.Time
 }
 
 type MarkRepository interface {
-	GetById(ctx context.Context, id int64) (*Mark, error)
-	GetByUserId(ctx context.Context, userId int64) ([]*Mark, error)
+	GetById(ctx context.Context, id string) (*Mark, error)
+	GetByUserId(ctx context.Context, userId string) ([]*Mark, error)
 	Create(ctx context.Context, mark *Mark) error
 	Update(ctx context.Context, mark *Mark) error
-	Delete(ctx context.Context, id int64) error
+	Delete(ctx context.Context, id string) error
 }
