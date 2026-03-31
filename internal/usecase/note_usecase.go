@@ -8,14 +8,6 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
 
-type NoteService interface {
-	GetByID(ctx context.Context, id string) (*domain.Note, error)
-	GetByUserID(ctx context.Context, userID string) ([]*domain.Note, error)
-	CreateNote(ctx context.Context, req CreateNoteRequest) error
-	UpdateNote(ctx context.Context, req UpdateNoteRequest) error
-	DeleteNote(ctx context.Context, id string) error
-}
-
 type CreateNoteRequest struct {
 	ID      string
 	UserID  string
@@ -33,7 +25,7 @@ type NoteUseCase struct {
 	notesRepo domain.NoteRepository
 }
 
-func NewNoteService(notes domain.NoteRepository) *NoteUseCase {
+func NewNoteUseCase(notes domain.NoteRepository) *NoteUseCase {
 	return &NoteUseCase{
 		notesRepo: notes,
 	}
@@ -56,20 +48,9 @@ func (s *NoteUseCase) GetByUserID(ctx context.Context, userID string) ([]*domain
 }
 
 func (s *NoteUseCase) CreateNote(ctx context.Context, req CreateNoteRequest) error {
-	id := strings.TrimSpace(req.ID)
-	userID := strings.TrimSpace(req.UserID)
-	title := strings.TrimSpace(req.Title)
-	content := strings.TrimSpace(req.Content)
-	if id == "" || userID == "" || title == "" || content == "" {
-		return domain.ErrInvalidInput
-	}
-
-	note := &domain.Note{
-		ID:        id,
-		UserID:    userID,
-		Title:     title,
-		Content:   content,
-		UpdatedAt: time.Now().UTC(),
+	note, err := domain.NewNote(req.ID, req.UserID, req.Title, req.Content, time.Now().UTC())
+	if err != nil {
+		return err
 	}
 
 	if err := s.notesRepo.Create(ctx, note); err != nil {
@@ -95,9 +76,9 @@ func (s *NoteUseCase) UpdateNote(ctx context.Context, req UpdateNoteRequest) err
 		return err
 	}
 
-	note.Title = title
-	note.Content = content
-	note.UpdatedAt = time.Now().UTC()
+	if err := note.Update(title, content, time.Now().UTC()); err != nil {
+		return err
+	}
 
 	return s.notesRepo.Update(ctx, note)
 }
@@ -109,5 +90,3 @@ func (s *NoteUseCase) DeleteNote(ctx context.Context, id string) error {
 
 	return s.notesRepo.Delete(ctx, id)
 }
-
-var _ NoteService = (*NoteUseCase)(nil)

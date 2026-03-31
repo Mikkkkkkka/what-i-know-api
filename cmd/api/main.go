@@ -43,9 +43,9 @@ func main() {
 	idGenerator := security.NewUUIDGenerator()
 	passwordHasher := security.NewBcryptPasswordHasher(0)
 
-	userService := usecase.NewUserService(userRepository, idGenerator, passwordHasher)
-	noteService := usecase.NewNoteService(noteRepository)
-	markService := usecase.NewMarkService(markRepository)
+	userService := usecase.NewUserUseCase(userRepository, idGenerator, passwordHasher)
+	noteService := usecase.NewNoteUseCase(noteRepository)
+	markService := usecase.NewMarkUseCase(markRepository)
 
 	apiHandler := api.NewHandler(api.Services{
 		Users: userService,

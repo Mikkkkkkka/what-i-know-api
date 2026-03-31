@@ -7,9 +7,9 @@ import (
 )
 
 type Services struct {
-	Users usecase.UserService
-	Notes usecase.NoteService
-	Marks usecase.MarkService
+	Users *usecase.UserUseCase
+	Notes *usecase.NoteUseCase
+	Marks *usecase.MarkUseCase
 }
 
 type Handler struct {

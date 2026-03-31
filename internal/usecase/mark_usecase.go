@@ -8,14 +8,6 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
 
-type MarkService interface {
-	GetByID(ctx context.Context, id string) (*domain.Mark, error)
-	GetByUserID(ctx context.Context, userID string) ([]*domain.Mark, error)
-	CreateMark(ctx context.Context, req CreateMarkRequest) error
-	UpdateMark(ctx context.Context, req UpdateMarkRequest) error
-	DeleteMark(ctx context.Context, id string) error
-}
-
 type CreateMarkRequest struct {
 	ID      string
 	UserID  string
@@ -32,7 +24,7 @@ type MarkUseCase struct {
 	marksRepo domain.MarkRepository
 }
 
-func NewMarkService(marks domain.MarkRepository) *MarkUseCase {
+func NewMarkUseCase(marks domain.MarkRepository) *MarkUseCase {
 	return &MarkUseCase{marksRepo: marks}
 }
 
@@ -53,19 +45,9 @@ func (s *MarkUseCase) GetByUserID(ctx context.Context, userID string) ([]*domain
 }
 
 func (s *MarkUseCase) CreateMark(ctx context.Context, req CreateMarkRequest) error {
-	id := strings.TrimSpace(req.ID)
-	userID := strings.TrimSpace(req.UserID)
-	content := strings.TrimSpace(req.Content)
-	if id == "" || userID == "" || req.Date.IsZero() || content == "" {
-		return domain.ErrInvalidInput
-	}
-
-	mark := &domain.Mark{
-		ID:        id,
-		UserID:    userID,
-		Date:      req.Date.UTC(),
-		Content:   content,
-		UpdatedAt: time.Now().UTC(),
+	mark, err := domain.NewMark(req.ID, req.UserID, req.Date, req.Content, time.Now().UTC())
+	if err != nil {
+		return err
 	}
 
 	if err := s.marksRepo.Create(ctx, mark); err != nil {
@@ -90,8 +72,9 @@ func (s *MarkUseCase) UpdateMark(ctx context.Context, req UpdateMarkRequest) err
 		return err
 	}
 
-	mark.Content = content
-	mark.UpdatedAt = time.Now().UTC()
+	if err := mark.UpdateContent(content, time.Now().UTC()); err != nil {
+		return err
+	}
 
 	return s.marksRepo.Update(ctx, mark)
 }
@@ -103,5 +86,3 @@ func (s *MarkUseCase) DeleteMark(ctx context.Context, id string) error {
 
 	return s.marksRepo.Delete(ctx, id)
 }
-
-var _ MarkService = (*MarkUseCase)(nil)

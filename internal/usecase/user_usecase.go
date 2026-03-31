@@ -8,14 +8,6 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
 
-type UserService interface {
-	GetByID(ctx context.Context, id string) (*domain.User, error)
-	GetByUsername(ctx context.Context, username string) (*domain.User, error)
-	CreateUser(ctx context.Context, request CreateUserRequest) (string, error)
-	UpdateUser(ctx context.Context, request UpdateUserRequest) error
-	DeleteUser(ctx context.Context, id string) error
-}
-
 type CreateUserRequest struct {
 	Username string
 	Password string
@@ -33,7 +25,7 @@ type UserUseCase struct {
 	passwordHasher PasswordHasher
 }
 
-func NewUserService(users domain.UserRepository, idGenerator IDGenerator, passwordHasher PasswordHasher) *UserUseCase {
+func NewUserUseCase(users domain.UserRepository, idGenerator IDGenerator, passwordHasher PasswordHasher) *UserUseCase {
 	return &UserUseCase{
 		userRepo:       users,
 		idGenerator:    idGenerator,
@@ -75,11 +67,9 @@ func (s *UserUseCase) CreateUser(ctx context.Context, request CreateUserRequest)
 		return "", err
 	}
 
-	user := &domain.User{
-		ID:        id,
-		Username:  username,
-		Password:  hashedPassword,
-		CreatedAt: time.Now().UTC(),
+	user, err := domain.NewUser(id, username, hashedPassword, time.Now().UTC())
+	if err != nil {
+		return "", err
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
@@ -104,7 +94,9 @@ func (s *UserUseCase) UpdateUser(ctx context.Context, request UpdateUserRequest)
 		return err
 	}
 
-	user.Username = username
+	if err := user.Rename(username); err != nil {
+		return err
+	}
 
 	return s.userRepo.Update(ctx, user)
 }
@@ -116,5 +108,3 @@ func (s *UserUseCase) DeleteUser(ctx context.Context, id string) error {
 
 	return s.userRepo.Delete(ctx, id)
 }
-
-var _ UserService = (*UserUseCase)(nil)
