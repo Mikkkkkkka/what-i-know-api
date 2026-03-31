@@ -5,7 +5,6 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -61,16 +60,6 @@ func writeError(w http.ResponseWriter, err error) {
 	}
 
 	writeJSON(w, status, errorResponse{Error: message})
-}
-
-func urlParamInt64(r *http.Request, key string) (int64, error) {
-	value := chi.URLParam(r, key)
-	id, err := strconv.ParseInt(value, 10, 64)
-	if err != nil {
-		return 0, domain.ErrInvalidInput
-	}
-
-	return id, nil
 }
 
 func urlParamString(r *http.Request, key string) (string, error) {
