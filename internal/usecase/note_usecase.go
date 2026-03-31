@@ -8,14 +8,6 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
 
-type NoteService interface {
-	GetByID(ctx context.Context, id string) (*domain.Note, error)
-	GetByUserID(ctx context.Context, userID string) ([]*domain.Note, error)
-	CreateNote(ctx context.Context, req CreateNoteRequest) error
-	UpdateNote(ctx context.Context, req UpdateNoteRequest) error
-	DeleteNote(ctx context.Context, id string) error
-}
-
 type CreateNoteRequest struct {
 	ID      string
 	UserID  string
@@ -33,7 +25,7 @@ type NoteUseCase struct {
 	notesRepo domain.NoteRepository
 }
 
-func NewNoteService(notes domain.NoteRepository) *NoteUseCase {
+func NewNoteUseCase(notes domain.NoteRepository) *NoteUseCase {
 	return &NoteUseCase{
 		notesRepo: notes,
 	}
@@ -109,5 +101,3 @@ func (s *NoteUseCase) DeleteNote(ctx context.Context, id string) error {
 
 	return s.notesRepo.Delete(ctx, id)
 }
-
-var _ NoteService = (*NoteUseCase)(nil)
