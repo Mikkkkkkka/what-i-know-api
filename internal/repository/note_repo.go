@@ -27,7 +27,7 @@ func (r *NoteRepository) GetById(ctx context.Context, id string) (*domain.Note, 
 
 func (r *NoteRepository) GetByUserId(ctx context.Context, userId string) ([]*domain.Note, error) {
 	var models []noteModel
-	if err := r.db.WithContext(ctx).Where("user_id = ?", userId).Order("date DESC, id DESC").Find(&models).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("user_id = ?", userId).Order("title").Find(&models).Error; err != nil {
 		return nil, translateError(err)
 	}
 
@@ -56,7 +56,7 @@ func (r *NoteRepository) Update(ctx context.Context, note *domain.Note) error {
 		Where("id = ?", note.Id).
 		Updates(map[string]any{
 			"user_id":    model.UserID,
-			"name":       model.Title,
+			"title":      model.Title,
 			"content":    model.Content,
 			"updated_at": model.UpdatedAt,
 		})

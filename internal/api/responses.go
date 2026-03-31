@@ -23,7 +23,7 @@ func newUserResponse(user *domain.User) userResponse {
 type noteResponse struct {
 	ID        string    `json:"id"`
 	UserID    string    `json:"user_id"`
-	Title     string    `json:"name"`
+	Title     string    `json:"title"`
 	Content   string    `json:"content"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

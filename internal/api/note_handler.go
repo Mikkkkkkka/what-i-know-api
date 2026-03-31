@@ -9,8 +9,9 @@ import (
 )
 
 type createNoteRequest struct {
+	Id      string `json:"id"`
 	UserID  string `json:"user_id"`
-	Name    string `json:"name"`
+	Title   string `json:"title"`
 	Content string `json:"content"`
 }
 
@@ -36,8 +37,9 @@ func (h *Handler) createNote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := h.services.Notes.CreateNote(r.Context(), usecase.CreateNoteRequest{
+		Id:      request.Id,
 		UserId:  request.UserID,
-		Title:   request.Name,
+		Title:   request.Title,
 		Content: request.Content,
 	})
 	if err != nil {
