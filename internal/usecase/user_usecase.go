@@ -67,11 +67,9 @@ func (s *UserUseCase) CreateUser(ctx context.Context, request CreateUserRequest)
 		return "", err
 	}
 
-	user := &domain.User{
-		ID:        id,
-		Username:  username,
-		Password:  hashedPassword,
-		CreatedAt: time.Now().UTC(),
+	user, err := domain.NewUser(id, username, hashedPassword, time.Now().UTC())
+	if err != nil {
+		return "", err
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
@@ -96,7 +94,9 @@ func (s *UserUseCase) UpdateUser(ctx context.Context, request UpdateUserRequest)
 		return err
 	}
 
-	user.Username = username
+	if err := user.Rename(username); err != nil {
+		return err
+	}
 
 	return s.userRepo.Update(ctx, user)
 }
