@@ -48,9 +48,20 @@ func (s *NoteUseCase) GetByUserID(ctx context.Context, userID string) ([]*domain
 }
 
 func (s *NoteUseCase) CreateNote(ctx context.Context, req CreateNoteRequest) error {
-	note, err := domain.NewNote(req.ID, req.UserID, req.Title, req.Content, time.Now().UTC())
-	if err != nil {
-		return err
+	id := strings.TrimSpace(req.ID)
+	userID := strings.TrimSpace(req.UserID)
+	title := strings.TrimSpace(req.Title)
+	content := strings.TrimSpace(req.Content)
+	if id == "" || userID == "" || title == "" || content == "" {
+		return domain.ErrInvalidInput
+	}
+
+	note := &domain.Note{
+		ID:        id,
+		UserID:    userID,
+		Title:     title,
+		Content:   content,
+		UpdatedAt: time.Now().UTC(),
 	}
 
 	if err := s.notesRepo.Create(ctx, note); err != nil {
@@ -76,9 +87,9 @@ func (s *NoteUseCase) UpdateNote(ctx context.Context, req UpdateNoteRequest) err
 		return err
 	}
 
-	if err := note.Update(title, content, time.Now().UTC()); err != nil {
-		return err
-	}
+	note.Title = title
+	note.Content = content
+	note.UpdatedAt = time.Now().UTC()
 
 	return s.notesRepo.Update(ctx, note)
 }

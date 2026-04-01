@@ -45,9 +45,19 @@ func (s *MarkUseCase) GetByUserID(ctx context.Context, userID string) ([]*domain
 }
 
 func (s *MarkUseCase) CreateMark(ctx context.Context, req CreateMarkRequest) error {
-	mark, err := domain.NewMark(req.ID, req.UserID, req.Date, req.Content, time.Now().UTC())
-	if err != nil {
-		return err
+	id := strings.TrimSpace(req.ID)
+	userID := strings.TrimSpace(req.UserID)
+	content := strings.TrimSpace(req.Content)
+	if id == "" || userID == "" || req.Date.IsZero() || content == "" {
+		return domain.ErrInvalidInput
+	}
+
+	mark := &domain.Mark{
+		ID:        id,
+		UserID:    userID,
+		Date:      req.Date.UTC(),
+		Content:   content,
+		UpdatedAt: time.Now().UTC(),
 	}
 
 	if err := s.marksRepo.Create(ctx, mark); err != nil {
@@ -72,9 +82,8 @@ func (s *MarkUseCase) UpdateMark(ctx context.Context, req UpdateMarkRequest) err
 		return err
 	}
 
-	if err := mark.UpdateContent(content, time.Now().UTC()); err != nil {
-		return err
-	}
+	mark.Content = content
+	mark.UpdatedAt = time.Now().UTC()
 
 	return s.marksRepo.Update(ctx, mark)
 }
