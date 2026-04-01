@@ -1,4 +1,4 @@
-package usecase
+package service
 
 import (
 	"context"
@@ -18,29 +18,29 @@ type UpdateUserRequest struct {
 	// updating password isn't implemented yet
 }
 
-type UserUseCase struct {
+type UserService struct {
 	userRepo       domain.UserRepository
 	idGenerator    IDGenerator
 	passwordHasher PasswordHasher
 }
 
-func NewUserUseCase(users domain.UserRepository, idGenerator IDGenerator, passwordHasher PasswordHasher) *UserUseCase {
-	return &UserUseCase{
+func NewUserService(users domain.UserRepository, idGenerator IDGenerator, passwordHasher PasswordHasher) *UserService {
+	return &UserService{
 		userRepo:       users,
 		idGenerator:    idGenerator,
 		passwordHasher: passwordHasher,
 	}
 }
 
-func (s *UserUseCase) GetByID(ctx context.Context, id string) (*domain.User, error) {
+func (s *UserService) GetByID(ctx context.Context, id string) (*domain.User, error) {
 	return s.userRepo.GetByID(ctx, id)
 }
 
-func (s *UserUseCase) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
+func (s *UserService) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
 	return s.userRepo.GetByUsername(ctx, username)
 }
 
-func (s *UserUseCase) CreateUser(ctx context.Context, req CreateUserRequest) (string, error) {
+func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (string, error) {
 	id, err := s.idGenerator.Generate()
 	if err != nil {
 		return "", err
@@ -65,7 +65,7 @@ func (s *UserUseCase) CreateUser(ctx context.Context, req CreateUserRequest) (st
 	return user.ID, nil
 }
 
-func (s *UserUseCase) UpdateUser(ctx context.Context, req UpdateUserRequest) error {
+func (s *UserService) UpdateUser(ctx context.Context, req UpdateUserRequest) error {
 	user, err := s.userRepo.GetByID(ctx, req.ID)
 	if err != nil {
 		return err
@@ -76,6 +76,6 @@ func (s *UserUseCase) UpdateUser(ctx context.Context, req UpdateUserRequest) err
 	return s.userRepo.Update(ctx, user)
 }
 
-func (s *UserUseCase) DeleteUser(ctx context.Context, id string) error {
+func (s *UserService) DeleteUser(ctx context.Context, id string) error {
 	return s.userRepo.Delete(ctx, id)
 }

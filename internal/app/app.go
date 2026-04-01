@@ -9,7 +9,7 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/config"
 	"github.com/mikkkkkkka/what-i-know-api/internal/repository/gorm_postgres"
 	"github.com/mikkkkkkka/what-i-know-api/internal/security"
-	"github.com/mikkkkkkka/what-i-know-api/internal/usecase"
+	"github.com/mikkkkkkka/what-i-know-api/internal/service"
 )
 
 func Start() {
@@ -35,9 +35,9 @@ func Start() {
 	idGenerator := security.NewUUIDGenerator()
 	passwordHasher := security.NewBcryptPasswordHasher(0)
 
-	userService := usecase.NewUserUseCase(userRepository, idGenerator, passwordHasher)
-	noteService := usecase.NewNoteUseCase(noteRepository)
-	markService := usecase.NewMarkUseCase(markRepository)
+	userService := service.NewUserService(userRepository, idGenerator, passwordHasher)
+	noteService := service.NewNoteService(noteRepository)
+	markService := service.NewMarkService(markRepository)
 
 	userHandler := api.NewUserHandler(userService)
 	noteHandler := api.NewNoteHandler(noteService)

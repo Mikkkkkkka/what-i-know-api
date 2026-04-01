@@ -3,14 +3,14 @@ package api
 import (
 	"net/http"
 
-	"github.com/mikkkkkkka/what-i-know-api/internal/usecase"
+	"github.com/mikkkkkkka/what-i-know-api/internal/service"
 )
 
 type UserHandler struct {
-	users *usecase.UserUseCase
+	users *service.UserService
 }
 
-func NewUserHandler(users *usecase.UserUseCase) *UserHandler {
+func NewUserHandler(users *service.UserService) *UserHandler {
 	return &UserHandler{users: users}
 }
 
@@ -21,7 +21,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := h.users.CreateUser(r.Context(), usecase.CreateUserRequest{
+	id, err := h.users.CreateUser(r.Context(), service.CreateUserRequest{
 		Username: request.Username,
 		Password: request.Password,
 	})
@@ -62,7 +62,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.users.UpdateUser(r.Context(), usecase.UpdateUserRequest{
+	err = h.users.UpdateUser(r.Context(), service.UpdateUserRequest{
 		ID:       userID,
 		Username: request.Username,
 	})

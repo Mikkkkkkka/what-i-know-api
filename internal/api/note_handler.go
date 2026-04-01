@@ -3,14 +3,14 @@ package api
 import (
 	"net/http"
 
-	"github.com/mikkkkkkka/what-i-know-api/internal/usecase"
+	"github.com/mikkkkkkka/what-i-know-api/internal/service"
 )
 
 type NoteHandler struct {
-	notes *usecase.NoteUseCase
+	notes *service.NoteService
 }
 
-func NewNoteHandler(notes *usecase.NoteUseCase) *NoteHandler {
+func NewNoteHandler(notes *service.NoteService) *NoteHandler {
 	return &NoteHandler{notes: notes}
 }
 
@@ -21,7 +21,7 @@ func (h *NoteHandler) CreateNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.notes.CreateNote(r.Context(), usecase.CreateNoteRequest{
+	err := h.notes.CreateNote(r.Context(), service.CreateNoteRequest{
 		ID:      request.ID,
 		UserID:  request.UserID,
 		Title:   request.Title,
@@ -80,7 +80,7 @@ func (h *NoteHandler) UpdateNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.notes.UpdateNote(r.Context(), usecase.UpdateNoteRequest{
+	err = h.notes.UpdateNote(r.Context(), service.UpdateNoteRequest{
 		ID:      noteID,
 		Title:   request.Title,
 		Content: request.Content,

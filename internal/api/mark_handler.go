@@ -3,14 +3,14 @@ package api
 import (
 	"net/http"
 
-	"github.com/mikkkkkkka/what-i-know-api/internal/usecase"
+	"github.com/mikkkkkkka/what-i-know-api/internal/service"
 )
 
 type MarkHandler struct {
-	marks *usecase.MarkUseCase
+	marks *service.MarkService
 }
 
-func NewMarkHandler(marks *usecase.MarkUseCase) *MarkHandler {
+func NewMarkHandler(marks *service.MarkService) *MarkHandler {
 	return &MarkHandler{marks: marks}
 }
 
@@ -21,7 +21,7 @@ func (h *MarkHandler) CreateMark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.marks.CreateMark(r.Context(), usecase.CreateMarkRequest{
+	err := h.marks.CreateMark(r.Context(), service.CreateMarkRequest{
 		ID:      request.ID,
 		UserID:  request.UserID,
 		Date:    request.Date,
@@ -80,7 +80,7 @@ func (h *MarkHandler) UpdateMark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.marks.UpdateMark(r.Context(), usecase.UpdateMarkRequest{
+	err = h.marks.UpdateMark(r.Context(), service.UpdateMarkRequest{
 		ID:      markID,
 		Content: request.Content,
 	})

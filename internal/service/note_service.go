@@ -1,4 +1,4 @@
-package usecase
+package service
 
 import (
 	"context"
@@ -20,25 +20,25 @@ type UpdateNoteRequest struct {
 	Content string
 }
 
-type NoteUseCase struct {
+type NoteService struct {
 	notesRepo domain.NoteRepository
 }
 
-func NewNoteUseCase(notes domain.NoteRepository) *NoteUseCase {
-	return &NoteUseCase{
+func NewNoteService(notes domain.NoteRepository) *NoteService {
+	return &NoteService{
 		notesRepo: notes,
 	}
 }
 
-func (s *NoteUseCase) GetByID(ctx context.Context, id string) (*domain.Note, error) {
+func (s *NoteService) GetByID(ctx context.Context, id string) (*domain.Note, error) {
 	return s.notesRepo.GetByID(ctx, id)
 }
 
-func (s *NoteUseCase) GetByUserID(ctx context.Context, userID string) ([]*domain.Note, error) {
+func (s *NoteService) GetByUserID(ctx context.Context, userID string) ([]*domain.Note, error) {
 	return s.notesRepo.GetByUserID(ctx, userID)
 }
 
-func (s *NoteUseCase) CreateNote(ctx context.Context, req CreateNoteRequest) error {
+func (s *NoteService) CreateNote(ctx context.Context, req CreateNoteRequest) error {
 	note := &domain.Note{
 		ID:        req.ID,
 		UserID:    req.UserID,
@@ -54,7 +54,7 @@ func (s *NoteUseCase) CreateNote(ctx context.Context, req CreateNoteRequest) err
 	return nil
 }
 
-func (s *NoteUseCase) UpdateNote(ctx context.Context, req UpdateNoteRequest) error {
+func (s *NoteService) UpdateNote(ctx context.Context, req UpdateNoteRequest) error {
 	note, err := s.notesRepo.GetByID(ctx, req.ID)
 	if err != nil {
 		return err
@@ -67,6 +67,6 @@ func (s *NoteUseCase) UpdateNote(ctx context.Context, req UpdateNoteRequest) err
 	return s.notesRepo.Update(ctx, note)
 }
 
-func (s *NoteUseCase) DeleteNote(ctx context.Context, id string) error {
+func (s *NoteService) DeleteNote(ctx context.Context, id string) error {
 	return s.notesRepo.Delete(ctx, id)
 }

@@ -3,7 +3,7 @@ package security
 import (
 	"github.com/google/uuid"
 
-	"github.com/mikkkkkkka/what-i-know-api/internal/usecase"
+	"github.com/mikkkkkkka/what-i-know-api/internal/service"
 )
 
 type UUIDGenerator struct{}
@@ -16,4 +16,4 @@ func (g *UUIDGenerator) Generate() (string, error) {
 	return uuid.NewString(), nil
 }
 
-var _ usecase.IDGenerator = (*UUIDGenerator)(nil)
+var _ service.IDGenerator = (*UUIDGenerator)(nil)
