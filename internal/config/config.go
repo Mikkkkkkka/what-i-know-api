@@ -25,12 +25,12 @@ type Config struct {
 
 func Load() Config {
 	cfg := Config{
-		DBHost:              os.Getenv("DBHost"),
-		DBPort:              os.Getenv("DBPort"),
-		DBUser:              os.Getenv("DBUser"),
-		DBPassword:          os.Getenv("DBPassword"),
-		DBName:              os.Getenv("DBName"),
-		DBSSLMode:           os.Getenv("DBSSLMode"),
+		DBHost:              os.Getenv("DB_HOST"),
+		DBPort:              os.Getenv("DB_PORT"),
+		DBUser:              os.Getenv("DB_USER"),
+		DBPassword:          os.Getenv("DB_PASSWORD"),
+		DBName:              os.Getenv("DB_NAME"),
+		DBSSLMode:           os.Getenv("DB_SSL_MODE"),
 		HTTPAddress:         os.Getenv("HTTP_ADDRESS"),
 		HTTPAPIBasePath:     os.Getenv("HTTP_API_BASE_PATH"),
 		HTTPReadTimeout:     5 * time.Second,
@@ -71,16 +71,16 @@ func (c Config) MissingRequiredDBEnv() []string {
 	var missing []string
 
 	if c.DBHost == "" {
-		missing = append(missing, "DBHost")
+		missing = append(missing, "DB_HOST")
 	}
 	if c.DBUser == "" {
-		missing = append(missing, "DBUser")
+		missing = append(missing, "DB_USER")
 	}
 	if c.DBPassword == "" {
-		missing = append(missing, "DBPassword")
+		missing = append(missing, "DB_PASSWORD")
 	}
 	if c.DBName == "" {
-		missing = append(missing, "DBName")
+		missing = append(missing, "DB_NAME")
 	}
 
 	return missing
