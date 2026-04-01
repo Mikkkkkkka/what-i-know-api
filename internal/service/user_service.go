@@ -7,6 +7,14 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
 
+type UserRepository interface {
+	GetByID(ctx context.Context, id string) (*domain.User, error)
+	GetByUsername(ctx context.Context, username string) (*domain.User, error)
+	Create(ctx context.Context, user *domain.User) error
+	Update(ctx context.Context, user *domain.User) error
+	Delete(ctx context.Context, userID string) error
+}
+
 type CreateUserRequest struct {
 	Username string
 	Password string
@@ -19,12 +27,12 @@ type UpdateUserRequest struct {
 }
 
 type UserService struct {
-	userRepo       domain.UserRepository
+	userRepo       UserRepository
 	idGenerator    IDGenerator
 	passwordHasher PasswordHasher
 }
 
-func NewUserService(users domain.UserRepository, idGenerator IDGenerator, passwordHasher PasswordHasher) *UserService {
+func NewUserService(users UserRepository, idGenerator IDGenerator, passwordHasher PasswordHasher) *UserService {
 	return &UserService{
 		userRepo:       users,
 		idGenerator:    idGenerator,

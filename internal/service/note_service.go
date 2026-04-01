@@ -7,6 +7,14 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
 
+type NoteRepository interface {
+	GetByID(ctx context.Context, id string) (*domain.Note, error)
+	GetByUserID(ctx context.Context, userID string) ([]*domain.Note, error)
+	Create(ctx context.Context, note *domain.Note) error
+	Update(ctx context.Context, note *domain.Note) error
+	Delete(ctx context.Context, id string) error
+}
+
 type CreateNoteRequest struct {
 	ID      string
 	UserID  string
@@ -21,10 +29,10 @@ type UpdateNoteRequest struct {
 }
 
 type NoteService struct {
-	notesRepo domain.NoteRepository
+	notesRepo NoteRepository
 }
 
-func NewNoteService(notes domain.NoteRepository) *NoteService {
+func NewNoteService(notes NoteRepository) *NoteService {
 	return &NoteService{
 		notesRepo: notes,
 	}

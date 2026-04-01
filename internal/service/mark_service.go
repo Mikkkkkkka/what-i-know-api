@@ -7,6 +7,14 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
 
+type MarkRepository interface {
+	GetByID(ctx context.Context, id string) (*domain.Mark, error)
+	GetByUserID(ctx context.Context, userID string) ([]*domain.Mark, error)
+	Create(ctx context.Context, mark *domain.Mark) error
+	Update(ctx context.Context, mark *domain.Mark) error
+	Delete(ctx context.Context, id string) error
+}
+
 type CreateMarkRequest struct {
 	ID      string
 	UserID  string
@@ -20,10 +28,10 @@ type UpdateMarkRequest struct {
 }
 
 type MarkService struct {
-	marksRepo domain.MarkRepository
+	marksRepo MarkRepository
 }
 
-func NewMarkService(marks domain.MarkRepository) *MarkService {
+func NewMarkService(marks MarkRepository) *MarkService {
 	return &MarkService{marksRepo: marks}
 }
 

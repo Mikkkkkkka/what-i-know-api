@@ -3,6 +3,7 @@ package gorm_postgres
 import (
 	"context"
 
+	"github.com/mikkkkkkka/what-i-know-api/internal/service"
 	"gorm.io/gorm"
 
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
@@ -87,4 +88,4 @@ func (r *NoteRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-var _ domain.NoteRepository = (*NoteRepository)(nil)
+var _ service.NoteRepository = (*NoteRepository)(nil)
