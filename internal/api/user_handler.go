@@ -14,15 +14,6 @@ func NewUserHandler(users *usecase.UserUseCase) *UserHandler {
 	return &UserHandler{users: users}
 }
 
-type createUserRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-type updateUserRequest struct {
-	Username string `json:"username"`
-}
-
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var request createUserRequest
 	if err := decodeJSON(r, &request); err != nil {

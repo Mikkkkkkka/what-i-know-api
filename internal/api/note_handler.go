@@ -14,18 +14,6 @@ func NewNoteHandler(notes *usecase.NoteUseCase) *NoteHandler {
 	return &NoteHandler{notes: notes}
 }
 
-type createNoteRequest struct {
-	ID      string `json:"id"`
-	UserID  string `json:"user_id"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
-}
-
-type updateNoteRequest struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
-}
-
 func (h *NoteHandler) CreateNote(w http.ResponseWriter, r *http.Request) {
 	var request createNoteRequest
 	if err := decodeJSON(r, &request); err != nil {

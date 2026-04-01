@@ -2,7 +2,6 @@ package api
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/mikkkkkkka/what-i-know-api/internal/usecase"
 )
@@ -13,17 +12,6 @@ type MarkHandler struct {
 
 func NewMarkHandler(marks *usecase.MarkUseCase) *MarkHandler {
 	return &MarkHandler{marks: marks}
-}
-
-type createMarkRequest struct {
-	ID      string    `json:"id"`
-	UserID  string    `json:"user_id"`
-	Date    time.Time `json:"date"`
-	Content string    `json:"content"`
-}
-
-type updateMarkRequest struct {
-	Content string `json:"content"`
 }
 
 func (h *MarkHandler) CreateMark(w http.ResponseWriter, r *http.Request) {
