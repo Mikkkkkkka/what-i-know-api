@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"context"
@@ -11,34 +11,30 @@ import (
 
 	"github.com/mikkkkkkka/what-i-know-api/internal/api"
 	"github.com/mikkkkkkka/what-i-know-api/internal/config"
-	"github.com/mikkkkkkka/what-i-know-api/internal/repository"
+	"github.com/mikkkkkkka/what-i-know-api/internal/repository/gorm_postgres"
 	"github.com/mikkkkkkka/what-i-know-api/internal/security"
-	"github.com/mikkkkkkka/what-i-know-api/internal/server"
 	"github.com/mikkkkkkka/what-i-know-api/internal/usecase"
 )
 
-func main() {
-	appConfig, err := config.Load()
-	if err != nil {
-		log.Fatalf("load config: %v", err)
-	}
+func Start() {
+	cfg := config.Load()
 
-	if appConfig.Database.DSN == "" {
+	if cfg.DatabaseDSN == "" {
 		log.Fatal("DATABASE_DSN is required")
 	}
 
-	db, err := repository.OpenPostgres(appConfig.Database.DSN)
+	db, err := gorm_postgres.OpenPostgres(cfg.DatabaseDSN)
 	if err != nil {
 		log.Fatalf("open postgres: %v", err)
 	}
 
-	if err := repository.AutoMigrate(db); err != nil {
+	if err := gorm_postgres.AutoMigrate(db); err != nil {
 		log.Fatalf("auto-migrate database: %v", err)
 	}
 
-	userRepository := repository.NewUserRepository(db)
-	noteRepository := repository.NewNoteRepository(db)
-	markRepository := repository.NewMarkRepository(db)
+	userRepository := gorm_postgres.NewUserRepository(db)
+	noteRepository := gorm_postgres.NewNoteRepository(db)
+	markRepository := gorm_postgres.NewMarkRepository(db)
 
 	idGenerator := security.NewUUIDGenerator()
 	passwordHasher := security.NewBcryptPasswordHasher(0)
@@ -47,20 +43,26 @@ func main() {
 	noteService := usecase.NewNoteUseCase(noteRepository)
 	markService := usecase.NewMarkUseCase(markRepository)
 
-	apiHandler := api.NewHandler(api.Services{
+	httpHandler := api.NewHandler(api.Services{
 		Users: userService,
 		Notes: noteService,
 		Marks: markService,
 	})
 
-	httpServer := server.New(appConfig.HTTP, apiHandler)
+	httpServer := &http.Server{
+		Addr:         cfg.HTTPAddress,
+		Handler:      SetupRouter(cfg, httpHandler),
+		ReadTimeout:  cfg.HTTPReadTimeout,
+		WriteTimeout: cfg.HTTPWriteTimeout,
+		IdleTimeout:  cfg.HTTPIdleTimeout,
+	}
 
 	serverErrors := make(chan error, 1)
 	go func() {
 		serverErrors <- httpServer.ListenAndServe()
 	}()
 
-	log.Printf("http server listening on %s", appConfig.HTTP.Address)
+	log.Printf("http server listening on %s", cfg.HTTPAddress)
 
 	shutdownSignals := make(chan os.Signal, 1)
 	signal.Notify(shutdownSignals, os.Interrupt, syscall.SIGTERM)
@@ -74,7 +76,7 @@ func main() {
 		log.Printf("received signal %s, shutting down", sig)
 	}
 
-	shutdownContext, cancel := context.WithTimeout(context.Background(), appConfig.HTTP.ShutdownTimeout)
+	shutdownContext, cancel := context.WithTimeout(context.Background(), cfg.HTTPShutdownTimeout)
 	defer cancel()
 
 	if err := httpServer.Shutdown(shutdownContext); err != nil {
