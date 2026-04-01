@@ -1,13 +1,9 @@
 package app
 
 import (
-	"context"
-	"errors"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
+	"strings"
 
 	"github.com/mikkkkkkka/what-i-know-api/internal/api"
 	"github.com/mikkkkkkka/what-i-know-api/internal/config"
@@ -19,11 +15,11 @@ import (
 func Start() {
 	cfg := config.Load()
 
-	if cfg.DatabaseDSN == "" {
-		log.Fatal("DATABASE_DSN is required")
+	if missing := cfg.MissingRequiredDBEnv(); len(missing) > 0 {
+		log.Fatalf("%s are required", strings.Join(missing, ", "))
 	}
 
-	db, err := gorm_postgres.OpenPostgres(cfg.DatabaseDSN)
+	db, err := gorm_postgres.OpenPostgres(cfg.DatabaseDSN())
 	if err != nil {
 		log.Fatalf("open postgres: %v", err)
 	}

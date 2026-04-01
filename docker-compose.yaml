@@ -7,7 +7,12 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_DSN: host=db user=postgres password=postgres dbname=what_i_know port=5432 sslmode=disable
+      DBHost: db
+      DBPort: 5432
+      DBUser: postgres
+      DBPassword: postgres
+      DBName: what_i_know
+      DBSSLMode: disable
       HTTP_ADDRESS: :8080
     ports:
       - "8080:8080"
