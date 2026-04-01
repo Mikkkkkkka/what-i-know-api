@@ -7,6 +7,15 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
 
+type PasswordHasher interface {
+	Hash(password string) (string, error)
+	Compare(hashedPassword, password string) error
+}
+
+type IDGenerator interface {
+	Generate() (string, error)
+}
+
 type UserRepository interface {
 	GetByID(ctx context.Context, id string) (*domain.User, error)
 	GetByUsername(ctx context.Context, username string) (*domain.User, error)
