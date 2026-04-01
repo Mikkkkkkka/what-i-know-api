@@ -43,43 +43,13 @@ func Start() {
 	noteService := usecase.NewNoteUseCase(noteRepository)
 	markService := usecase.NewMarkUseCase(markRepository)
 
-	httpHandler := api.NewHandler(api.Services{
-		Users: userService,
-		Notes: noteService,
-		Marks: markService,
-	})
+	userHandler := api.NewUserHandler(userService)
+	noteHandler := api.NewNoteHandler(noteService)
+	markHandler := api.NewMarkHandler(markService)
 
-	httpServer := &http.Server{
-		Addr:         cfg.HTTPAddress,
-		Handler:      SetupRouter(cfg, httpHandler),
-		ReadTimeout:  cfg.HTTPReadTimeout,
-		WriteTimeout: cfg.HTTPWriteTimeout,
-		IdleTimeout:  cfg.HTTPIdleTimeout,
-	}
+	router := SetupRouter(userHandler, noteHandler, markHandler)
 
-	serverErrors := make(chan error, 1)
-	go func() {
-		serverErrors <- httpServer.ListenAndServe()
-	}()
-
-	log.Printf("http server listening on %s", cfg.HTTPAddress)
-
-	shutdownSignals := make(chan os.Signal, 1)
-	signal.Notify(shutdownSignals, os.Interrupt, syscall.SIGTERM)
-
-	select {
-	case err := <-serverErrors:
-		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("http server failed: %v", err)
-		}
-	case sig := <-shutdownSignals:
-		log.Printf("received signal %s, shutting down", sig)
-	}
-
-	shutdownContext, cancel := context.WithTimeout(context.Background(), cfg.HTTPShutdownTimeout)
-	defer cancel()
-
-	if err := httpServer.Shutdown(shutdownContext); err != nil {
-		log.Fatalf("shutdown http server: %v", err)
+	if err := http.ListenAndServe(cfg.HTTPAddress, router); err != nil {
+		log.Fatal(err)
 	}
 }

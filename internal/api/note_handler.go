@@ -3,10 +3,16 @@ package api
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
-
 	"github.com/mikkkkkkka/what-i-know-api/internal/usecase"
 )
+
+type NoteHandler struct {
+	notes *usecase.NoteUseCase
+}
+
+func NewNoteHandler(notes *usecase.NoteUseCase) *NoteHandler {
+	return &NoteHandler{notes: notes}
+}
 
 type createNoteRequest struct {
 	ID      string `json:"id"`
@@ -20,23 +26,14 @@ type updateNoteRequest struct {
 	Content string `json:"content"`
 }
 
-func (h *Handler) registerNoteRoutes(r chi.Router) {
-	r.Route("/notes", func(r chi.Router) {
-		r.With().Post("/", h.createNote)
-		r.With().Get("/{noteID}", h.getNote)
-		r.With().Patch("/{noteID}", h.updateNote)
-		r.With().Delete("/{noteID}", h.deleteNote)
-	})
-}
-
-func (h *Handler) createNote(w http.ResponseWriter, r *http.Request) {
+func (h *NoteHandler) CreateNote(w http.ResponseWriter, r *http.Request) {
 	var request createNoteRequest
 	if err := decodeJSON(r, &request); err != nil {
 		writeError(w, err)
 		return
 	}
 
-	err := h.services.Notes.CreateNote(r.Context(), usecase.CreateNoteRequest{
+	err := h.notes.CreateNote(r.Context(), usecase.CreateNoteRequest{
 		ID:      request.ID,
 		UserID:  request.UserID,
 		Title:   request.Title,
@@ -50,14 +47,14 @@ func (h *Handler) createNote(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, map[string]string{"status": "created"})
 }
 
-func (h *Handler) getNote(w http.ResponseWriter, r *http.Request) {
+func (h *NoteHandler) GetNote(w http.ResponseWriter, r *http.Request) {
 	noteID, err := urlParamString(r, "noteID")
 	if err != nil {
 		writeError(w, err)
 		return
 	}
 
-	note, err := h.services.Notes.GetByID(r.Context(), noteID)
+	note, err := h.notes.GetByID(r.Context(), noteID)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -66,14 +63,14 @@ func (h *Handler) getNote(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, newNoteResponse(note))
 }
 
-func (h *Handler) listNotesByUser(w http.ResponseWriter, r *http.Request) {
+func (h *NoteHandler) ListNotesByUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := urlParamString(r, "userID")
 	if err != nil {
 		writeError(w, err)
 		return
 	}
 
-	notes, err := h.services.Notes.GetByUserID(r.Context(), userID)
+	notes, err := h.notes.GetByUserID(r.Context(), userID)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -82,7 +79,7 @@ func (h *Handler) listNotesByUser(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, newNoteResponses(notes))
 }
 
-func (h *Handler) updateNote(w http.ResponseWriter, r *http.Request) {
+func (h *NoteHandler) UpdateNote(w http.ResponseWriter, r *http.Request) {
 	noteID, err := urlParamString(r, "noteID")
 	if err != nil {
 		writeError(w, err)
@@ -95,7 +92,7 @@ func (h *Handler) updateNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.services.Notes.UpdateNote(r.Context(), usecase.UpdateNoteRequest{
+	err = h.notes.UpdateNote(r.Context(), usecase.UpdateNoteRequest{
 		ID:      noteID,
 		Title:   request.Title,
 		Content: request.Content,
@@ -108,14 +105,14 @@ func (h *Handler) updateNote(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "updated"})
 }
 
-func (h *Handler) deleteNote(w http.ResponseWriter, r *http.Request) {
+func (h *NoteHandler) DeleteNote(w http.ResponseWriter, r *http.Request) {
 	noteID, err := urlParamString(r, "noteID")
 	if err != nil {
 		writeError(w, err)
 		return
 	}
 
-	if err := h.services.Notes.DeleteNote(r.Context(), noteID); err != nil {
+	if err := h.notes.DeleteNote(r.Context(), noteID); err != nil {
 		writeError(w, err)
 		return
 	}
