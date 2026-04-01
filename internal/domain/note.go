@@ -13,4 +13,4 @@ type Note struct {
 	UpdatedAt time.Time
 }
 
-var ErrNoteNotFound = errors.New("mark not found")
+var ErrNoteNotFound = errors.New("note not found")
