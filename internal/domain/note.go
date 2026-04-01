@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"time"
 )
 
@@ -20,3 +21,5 @@ type NoteRepository interface {
 	Update(ctx context.Context, note *Note) error
 	Delete(ctx context.Context, id string) error
 }
+
+var ErrNoteNotFound = errors.New("mark not found")

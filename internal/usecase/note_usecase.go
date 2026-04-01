@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
@@ -32,35 +31,19 @@ func NewNoteUseCase(notes domain.NoteRepository) *NoteUseCase {
 }
 
 func (s *NoteUseCase) GetByID(ctx context.Context, id string) (*domain.Note, error) {
-	if strings.TrimSpace(id) == "" {
-		return nil, domain.ErrInvalidInput
-	}
-
 	return s.notesRepo.GetByID(ctx, id)
 }
 
 func (s *NoteUseCase) GetByUserID(ctx context.Context, userID string) ([]*domain.Note, error) {
-	if strings.TrimSpace(userID) == "" {
-		return nil, domain.ErrInvalidInput
-	}
-
 	return s.notesRepo.GetByUserID(ctx, userID)
 }
 
 func (s *NoteUseCase) CreateNote(ctx context.Context, req CreateNoteRequest) error {
-	id := strings.TrimSpace(req.ID)
-	userID := strings.TrimSpace(req.UserID)
-	title := strings.TrimSpace(req.Title)
-	content := strings.TrimSpace(req.Content)
-	if id == "" || userID == "" || title == "" || content == "" {
-		return domain.ErrInvalidInput
-	}
-
 	note := &domain.Note{
-		ID:        id,
-		UserID:    userID,
-		Title:     title,
-		Content:   content,
+		ID:        req.ID,
+		UserID:    req.UserID,
+		Title:     req.Title,
+		Content:   req.Content,
 		UpdatedAt: time.Now().UTC(),
 	}
 
@@ -72,32 +55,18 @@ func (s *NoteUseCase) CreateNote(ctx context.Context, req CreateNoteRequest) err
 }
 
 func (s *NoteUseCase) UpdateNote(ctx context.Context, req UpdateNoteRequest) error {
-	if strings.TrimSpace(req.ID) == "" {
-		return domain.ErrInvalidInput
-	}
-
-	title := strings.TrimSpace(req.Title)
-	content := strings.TrimSpace(req.Content)
-	if title == "" || content == "" {
-		return domain.ErrInvalidInput
-	}
-
 	note, err := s.notesRepo.GetByID(ctx, req.ID)
 	if err != nil {
 		return err
 	}
 
-	note.Title = title
-	note.Content = content
+	note.Title = req.Title
+	note.Content = req.Content
 	note.UpdatedAt = time.Now().UTC()
 
 	return s.notesRepo.Update(ctx, note)
 }
 
 func (s *NoteUseCase) DeleteNote(ctx context.Context, id string) error {
-	if strings.TrimSpace(id) == "" {
-		return domain.ErrInvalidInput
-	}
-
 	return s.notesRepo.Delete(ctx, id)
 }

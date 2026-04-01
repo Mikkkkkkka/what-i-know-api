@@ -8,9 +8,10 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
+
+var ErrInvalidInput = errors.New("invalid input")
 
 type errorResponse struct {
 	Error string `json:"error"`
@@ -20,10 +21,10 @@ func decodeJSON(r *http.Request, dst any) error {
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(dst); err != nil {
-		return domain.ErrInvalidInput
+		return ErrInvalidInput
 	}
 	if err := decoder.Decode(&struct{}{}); err != nil && !errors.Is(err, io.EOF) {
-		return domain.ErrInvalidInput
+		return ErrInvalidInput
 	}
 
 	return nil
@@ -42,19 +43,25 @@ func writeError(w http.ResponseWriter, err error) {
 	message := "internal server error"
 
 	switch {
-	case errors.Is(err, domain.ErrInvalidInput):
+	case errors.Is(err, ErrInvalidInput):
 		status = http.StatusBadRequest
-		message = err.Error()
-	case errors.Is(err, domain.ErrUnauthorized):
-		status = http.StatusUnauthorized
 		message = err.Error()
 	case errors.Is(err, domain.ErrForbidden):
 		status = http.StatusForbidden
 		message = err.Error()
-	case errors.Is(err, domain.ErrNotFound):
+	case errors.Is(err, domain.ErrUserNotFound):
 		status = http.StatusNotFound
 		message = err.Error()
-	case errors.Is(err, domain.ErrAlreadyExists):
+	case errors.Is(err, domain.ErrNoteNotFound):
+		status = http.StatusNotFound
+		message = err.Error()
+	case errors.Is(err, domain.ErrMarkNotFound):
+		status = http.StatusNotFound
+		message = err.Error()
+	case errors.Is(err, domain.ErrMarkAlreadyExists):
+		status = http.StatusConflict
+		message = err.Error()
+	case errors.Is(err, domain.ErrUsernameAlreadyExists):
 		status = http.StatusConflict
 		message = err.Error()
 	}
@@ -65,7 +72,7 @@ func writeError(w http.ResponseWriter, err error) {
 func urlParamString(r *http.Request, key string) (string, error) {
 	value := strings.TrimSpace(chi.URLParam(r, key))
 	if value == "" {
-		return "", domain.ErrInvalidInput
+		return "", ErrInvalidInput
 	}
 
 	return value, nil

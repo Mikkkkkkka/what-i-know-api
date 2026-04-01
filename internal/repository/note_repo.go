@@ -19,7 +19,7 @@ func NewNoteRepository(db *gorm.DB) *NoteRepository {
 func (r *NoteRepository) GetByID(ctx context.Context, id string) (*domain.Note, error) {
 	var model noteModel
 	if err := r.db.WithContext(ctx).First(&model, id).Error; err != nil {
-		return nil, translateError(err)
+		return nil, err
 	}
 
 	return toDomainNote(&model), nil
@@ -28,7 +28,7 @@ func (r *NoteRepository) GetByID(ctx context.Context, id string) (*domain.Note, 
 func (r *NoteRepository) GetByUserID(ctx context.Context, userID string) ([]*domain.Note, error) {
 	var models []noteModel
 	if err := r.db.WithContext(ctx).Where("user_id = ?", userID).Order("title").Find(&models).Error; err != nil {
-		return nil, translateError(err)
+		return nil, err
 	}
 
 	notes := make([]*domain.Note, 0, len(models))
@@ -42,7 +42,7 @@ func (r *NoteRepository) GetByUserID(ctx context.Context, userID string) ([]*dom
 func (r *NoteRepository) Create(ctx context.Context, note *domain.Note) error {
 	model := toNoteModel(note)
 	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
-		return translateError(err)
+		return err
 	}
 
 	note.UpdatedAt = model.UpdatedAt
@@ -61,15 +61,15 @@ func (r *NoteRepository) Update(ctx context.Context, note *domain.Note) error {
 			"updated_at": model.UpdatedAt,
 		})
 	if result.Error != nil {
-		return translateError(result.Error)
+		return result.Error
 	}
 	if result.RowsAffected == 0 {
-		return domain.ErrNotFound
+		return domain.ErrNoteNotFound
 	}
 
 	var updated noteModel
 	if err := r.db.WithContext(ctx).First(&updated, note.ID).Error; err != nil {
-		return translateError(err)
+		return err
 	}
 	note.UpdatedAt = updated.UpdatedAt
 	return nil
@@ -78,10 +78,10 @@ func (r *NoteRepository) Update(ctx context.Context, note *domain.Note) error {
 func (r *NoteRepository) Delete(ctx context.Context, id string) error {
 	result := r.db.WithContext(ctx).Delete(&noteModel{}, id)
 	if result.Error != nil {
-		return translateError(result.Error)
+		return result.Error
 	}
 	if result.RowsAffected == 0 {
-		return domain.ErrNotFound
+		return domain.ErrNoteNotFound
 	}
 
 	return nil

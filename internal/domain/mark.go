@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"time"
 )
 
@@ -20,3 +21,6 @@ type MarkRepository interface {
 	Update(ctx context.Context, mark *Mark) error
 	Delete(ctx context.Context, id string) error
 }
+
+var ErrMarkNotFound = errors.New("mark not found")
+var ErrMarkAlreadyExists = errors.New("mark already exists")

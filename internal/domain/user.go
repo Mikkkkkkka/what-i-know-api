@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"time"
 )
 
@@ -19,3 +20,6 @@ type UserRepository interface {
 	Update(ctx context.Context, user *User) error
 	Delete(ctx context.Context, userID string) error
 }
+
+var ErrUserNotFound = errors.New("user not found")
+var ErrUsernameAlreadyExists = errors.New("username already exists")

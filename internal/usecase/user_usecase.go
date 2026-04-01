@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
@@ -34,42 +33,27 @@ func NewUserUseCase(users domain.UserRepository, idGenerator IDGenerator, passwo
 }
 
 func (s *UserUseCase) GetByID(ctx context.Context, id string) (*domain.User, error) {
-	if strings.TrimSpace(id) == "" {
-		return nil, domain.ErrInvalidInput
-	}
-
 	return s.userRepo.GetByID(ctx, id)
 }
 
 func (s *UserUseCase) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
-	username = strings.TrimSpace(username)
-	if username == "" {
-		return nil, domain.ErrInvalidInput
-	}
-
 	return s.userRepo.GetByUsername(ctx, username)
 }
 
-func (s *UserUseCase) CreateUser(ctx context.Context, request CreateUserRequest) (string, error) {
-	username := strings.TrimSpace(request.Username)
-	password := strings.TrimSpace(request.Password)
-	if username == "" || password == "" {
-		return "", domain.ErrInvalidInput
-	}
-
+func (s *UserUseCase) CreateUser(ctx context.Context, req CreateUserRequest) (string, error) {
 	id, err := s.idGenerator.Generate()
 	if err != nil {
 		return "", err
 	}
 
-	hashedPassword, err := s.passwordHasher.Hash(password)
+	hashedPassword, err := s.passwordHasher.Hash(req.Password)
 	if err != nil {
 		return "", err
 	}
 
 	user := &domain.User{
 		ID:        id,
-		Username:  username,
+		Username:  req.Username,
 		Password:  hashedPassword,
 		CreatedAt: time.Now().UTC(),
 	}
@@ -81,30 +65,17 @@ func (s *UserUseCase) CreateUser(ctx context.Context, request CreateUserRequest)
 	return user.ID, nil
 }
 
-func (s *UserUseCase) UpdateUser(ctx context.Context, request UpdateUserRequest) error {
-	if strings.TrimSpace(request.ID) == "" {
-		return domain.ErrInvalidInput
-	}
-
-	username := strings.TrimSpace(request.Username)
-	if username == "" {
-		return domain.ErrInvalidInput
-	}
-
-	user, err := s.userRepo.GetByID(ctx, request.ID)
+func (s *UserUseCase) UpdateUser(ctx context.Context, req UpdateUserRequest) error {
+	user, err := s.userRepo.GetByID(ctx, req.ID)
 	if err != nil {
 		return err
 	}
 
-	user.Username = username
+	user.Username = req.Username
 
 	return s.userRepo.Update(ctx, user)
 }
 
 func (s *UserUseCase) DeleteUser(ctx context.Context, id string) error {
-	if strings.TrimSpace(id) == "" {
-		return domain.ErrInvalidInput
-	}
-
 	return s.userRepo.Delete(ctx, id)
 }
