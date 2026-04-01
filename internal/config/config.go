@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -96,10 +95,6 @@ func (c Config) DatabaseDSN() string {
 		c.DBPort,
 		c.DBSSLMode,
 	)
-}
-
-func FormatMissingEnv(names []string) string {
-	return strings.Join(names, ", ")
 }
 
 func durationSecondsOrDefault(raw string, fallback time.Duration) time.Duration {
