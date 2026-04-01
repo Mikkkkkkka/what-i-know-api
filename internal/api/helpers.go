@@ -8,14 +8,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
-
-var ErrInvalidInput = errors.New("invalid input")
-
-type errorResponse struct {
-	Error string `json:"error"`
-}
 
 func decodeJSON(r *http.Request, dst any) error {
 	decoder := json.NewDecoder(r.Body)
@@ -36,37 +29,6 @@ func writeJSON(w http.ResponseWriter, status int, payload any) {
 	if payload != nil {
 		_ = json.NewEncoder(w).Encode(payload)
 	}
-}
-
-func writeError(w http.ResponseWriter, err error) {
-	status := http.StatusInternalServerError
-	message := "internal server error"
-
-	switch {
-	case errors.Is(err, ErrInvalidInput):
-		status = http.StatusBadRequest
-		message = err.Error()
-	case errors.Is(err, domain.ErrForbidden):
-		status = http.StatusForbidden
-		message = err.Error()
-	case errors.Is(err, domain.ErrUserNotFound):
-		status = http.StatusNotFound
-		message = err.Error()
-	case errors.Is(err, domain.ErrNoteNotFound):
-		status = http.StatusNotFound
-		message = err.Error()
-	case errors.Is(err, domain.ErrMarkNotFound):
-		status = http.StatusNotFound
-		message = err.Error()
-	case errors.Is(err, domain.ErrMarkAlreadyExists):
-		status = http.StatusConflict
-		message = err.Error()
-	case errors.Is(err, domain.ErrUsernameAlreadyExists):
-		status = http.StatusConflict
-		message = err.Error()
-	}
-
-	writeJSON(w, status, errorResponse{Error: message})
 }
 
 func urlParamString(r *http.Request, key string) (string, error) {
