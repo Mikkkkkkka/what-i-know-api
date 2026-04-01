@@ -33,10 +33,13 @@ func writeError(w http.ResponseWriter, err error) {
 	case errors.Is(err, domain.ErrMarkNotFound):
 		status = http.StatusNotFound
 		message = err.Error()
-	case errors.Is(err, domain.ErrMarkAlreadyExists):
+	case errors.Is(err, domain.ErrUsernameAlreadyExists):
 		status = http.StatusConflict
 		message = err.Error()
-	case errors.Is(err, domain.ErrUsernameAlreadyExists):
+	case errors.Is(err, domain.ErrNoteAlreadyExists):
+		status = http.StatusConflict
+		message = err.Error()
+	case errors.Is(err, domain.ErrMarkAlreadyExists):
 		status = http.StatusConflict
 		message = err.Error()
 	}

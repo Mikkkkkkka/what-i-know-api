@@ -14,3 +14,4 @@ type Note struct {
 }
 
 var ErrNoteNotFound = errors.New("note not found")
+var ErrNoteAlreadyExists = errors.New("note already exists")
