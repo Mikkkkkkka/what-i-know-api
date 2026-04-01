@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
+	"gorm.io/gorm"
 )
 
 type NoteRepository interface {
@@ -39,7 +41,16 @@ func NewNoteService(notes NoteRepository) *NoteService {
 }
 
 func (s *NoteService) GetByID(ctx context.Context, id string) (*domain.Note, error) {
-	return s.notesRepo.GetByID(ctx, id)
+	note, err := s.notesRepo.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, domain.ErrNoteNotFound
+		}
+
+		return nil, err
+	}
+
+	return note, nil
 }
 
 func (s *NoteService) GetByUserID(ctx context.Context, userID string) ([]*domain.Note, error) {
@@ -56,6 +67,10 @@ func (s *NoteService) CreateNote(ctx context.Context, req CreateNoteRequest) err
 	}
 
 	if err := s.notesRepo.Create(ctx, note); err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return domain.ErrNoteAlreadyExists
+		}
+
 		return err
 	}
 
@@ -65,7 +80,9 @@ func (s *NoteService) CreateNote(ctx context.Context, req CreateNoteRequest) err
 func (s *NoteService) UpdateNote(ctx context.Context, req UpdateNoteRequest) error {
 	note, err := s.notesRepo.GetByID(ctx, req.ID)
 	if err != nil {
-		return err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return domain.ErrNoteNotFound
+		}
 	}
 
 	note.Title = req.Title

@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
+	"gorm.io/gorm"
 )
 
 type MarkRepository interface {
@@ -36,7 +38,16 @@ func NewMarkService(marks MarkRepository) *MarkService {
 }
 
 func (s *MarkService) GetByID(ctx context.Context, id string) (*domain.Mark, error) {
-	return s.marksRepo.GetByID(ctx, id)
+	mark, err := s.marksRepo.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, domain.ErrMarkNotFound
+		}
+
+		return nil, err
+	}
+
+	return mark, nil
 }
 
 func (s *MarkService) GetByUserID(ctx context.Context, userID string) ([]*domain.Mark, error) {
@@ -53,6 +64,10 @@ func (s *MarkService) CreateMark(ctx context.Context, req CreateMarkRequest) err
 	}
 
 	if err := s.marksRepo.Create(ctx, mark); err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return domain.ErrMarkAlreadyExists
+		}
+
 		return err
 	}
 
@@ -63,7 +78,9 @@ func (s *MarkService) UpdateMark(ctx context.Context, req UpdateMarkRequest) err
 
 	mark, err := s.marksRepo.GetByID(ctx, req.ID)
 	if err != nil {
-		return err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return domain.ErrMarkNotFound
+		}
 	}
 
 	mark.Content = req.Content

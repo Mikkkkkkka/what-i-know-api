@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
+	"gorm.io/gorm"
 )
 
 type PasswordHasher interface {
@@ -50,11 +52,29 @@ func NewUserService(users UserRepository, idGenerator IDGenerator, passwordHashe
 }
 
 func (s *UserService) GetByID(ctx context.Context, id string) (*domain.User, error) {
-	return s.userRepo.GetByID(ctx, id)
+	user, err := s.userRepo.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, domain.ErrUserNotFound
+		}
+
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (s *UserService) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
-	return s.userRepo.GetByUsername(ctx, username)
+	user, err := s.userRepo.GetByUsername(ctx, username)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, domain.ErrUserNotFound
+		}
+
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (string, error) {
@@ -76,6 +96,10 @@ func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (st
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return "", domain.ErrUsernameAlreadyExists
+		}
+
 		return "", err
 	}
 
@@ -85,12 +109,24 @@ func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (st
 func (s *UserService) UpdateUser(ctx context.Context, req UpdateUserRequest) error {
 	user, err := s.userRepo.GetByID(ctx, req.ID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return domain.ErrUserNotFound
+		}
+
 		return err
 	}
 
 	user.Username = req.Username
 
-	return s.userRepo.Update(ctx, user)
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return domain.ErrUsernameAlreadyExists
+		}
+
+		return err
+	}
+
+	return nil
 }
 
 func (s *UserService) DeleteUser(ctx context.Context, id string) error {
