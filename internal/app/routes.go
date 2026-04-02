@@ -9,7 +9,7 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/config"
 )
 
-func SetupRouter(cfg config.Config, userHandler *api.UserHandler, noteHandler *api.NoteHandler, markHandler *api.MarkHandler) http.Handler {
+func SetupRouter(cfg config.Config, authHandler *api.AuthHandler, userHandler *api.UserHandler, noteHandler *api.NoteHandler, markHandler *api.MarkHandler) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -19,6 +19,11 @@ func SetupRouter(cfg config.Config, userHandler *api.UserHandler, noteHandler *a
 	r.Use(middleware.Heartbeat("/health"))
 
 	r.Route(cfg.HTTPAPIBasePath, func(r chi.Router) {
+		r.Route("/auth", func(r chi.Router) {
+			r.Post("/login", authHandler.Login)
+			r.Post("/register", authHandler.Register)
+		})
+
 		r.Route("/users", func(r chi.Router) {
 			r.Post("/", userHandler.CreateUser)
 			r.Get("/{userID}", userHandler.GetUser)
