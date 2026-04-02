@@ -45,6 +45,7 @@ func Start() {
 
 	router := SetupRouter(userHandler, noteHandler, markHandler)
 
+	log.Printf("Server listening at %v\n", cfg.HTTPAddress)
 	if err := http.ListenAndServe(cfg.HTTPAddress, router); err != nil {
 		log.Fatal(err)
 	}
