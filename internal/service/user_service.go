@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
@@ -78,6 +79,15 @@ func (s *UserService) GetByUsername(ctx context.Context, username string) (*doma
 }
 
 func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (string, error) {
+	username, err := normalizeRequiredString(req.Username)
+	if err != nil {
+		return "", err
+	}
+
+	if strings.TrimSpace(req.Password) == "" {
+		return "", err
+	}
+
 	id, err := s.idGenerator.Generate()
 	if err != nil {
 		return "", err
@@ -90,7 +100,7 @@ func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (st
 
 	user := &domain.User{
 		ID:        id,
-		Username:  req.Username,
+		Username:  username,
 		Password:  hashedPassword,
 		CreatedAt: time.Now().UTC(),
 	}
@@ -107,7 +117,17 @@ func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (st
 }
 
 func (s *UserService) UpdateUser(ctx context.Context, req UpdateUserRequest) error {
-	user, err := s.userRepo.GetByID(ctx, req.ID)
+	id, err := normalizeRequiredString(req.ID)
+	if err != nil {
+		return err
+	}
+
+	username, err := normalizeRequiredString(req.Username)
+	if err != nil {
+		return err
+	}
+
+	user, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return domain.ErrUserNotFound
@@ -116,7 +136,7 @@ func (s *UserService) UpdateUser(ctx context.Context, req UpdateUserRequest) err
 		return err
 	}
 
-	user.Username = req.Username
+	user.Username = username
 
 	if err := s.userRepo.Update(ctx, user); err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {

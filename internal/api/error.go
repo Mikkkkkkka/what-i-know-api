@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
+	"github.com/mikkkkkkka/what-i-know-api/internal/service"
 )
 
 var ErrInvalidInput = errors.New("invalid input")
@@ -19,6 +20,9 @@ func writeError(w http.ResponseWriter, err error) {
 
 	switch {
 	case errors.Is(err, ErrInvalidInput):
+		status = http.StatusBadRequest
+		message = err.Error()
+	case errors.Is(err, service.ErrInvalidInput):
 		status = http.StatusBadRequest
 		message = err.Error()
 	case errors.Is(err, domain.ErrForbidden):

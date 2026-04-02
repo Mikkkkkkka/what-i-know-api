@@ -55,11 +55,26 @@ func (s *MarkService) GetByUserID(ctx context.Context, userID string) ([]*domain
 }
 
 func (s *MarkService) CreateMark(ctx context.Context, req CreateMarkRequest) error {
+	id, err := normalizeRequiredString(req.ID)
+	if err != nil {
+		return err
+	}
+
+	userID, err := normalizeRequiredString(req.UserID)
+	if err != nil {
+		return err
+	}
+
+	content, err := normalizeRequiredString(req.Content)
+	if err != nil {
+		return err
+	}
+
 	mark := &domain.Mark{
-		ID:        req.ID,
-		UserID:    req.UserID,
+		ID:        id,
+		UserID:    userID,
 		Date:      req.Date.UTC(),
-		Content:   req.Content,
+		Content:   content,
 		UpdatedAt: time.Now().UTC(),
 	}
 
@@ -75,8 +90,17 @@ func (s *MarkService) CreateMark(ctx context.Context, req CreateMarkRequest) err
 }
 
 func (s *MarkService) UpdateMark(ctx context.Context, req UpdateMarkRequest) error {
+	id, err := normalizeRequiredString(req.ID)
+	if err != nil {
+		return err
+	}
 
-	mark, err := s.marksRepo.GetByID(ctx, req.ID)
+	content, err := normalizeRequiredString(req.Content)
+	if err != nil {
+		return err
+	}
+
+	mark, err := s.marksRepo.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return domain.ErrMarkNotFound
@@ -85,7 +109,7 @@ func (s *MarkService) UpdateMark(ctx context.Context, req UpdateMarkRequest) err
 		return err
 	}
 
-	mark.Content = req.Content
+	mark.Content = content
 	mark.UpdatedAt = time.Now().UTC()
 
 	return s.marksRepo.Update(ctx, mark)

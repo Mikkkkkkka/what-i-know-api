@@ -58,11 +58,31 @@ func (s *NoteService) GetByUserID(ctx context.Context, userID string) ([]*domain
 }
 
 func (s *NoteService) CreateNote(ctx context.Context, req CreateNoteRequest) error {
+	id, err := normalizeRequiredString(req.ID)
+	if err != nil {
+		return err
+	}
+
+	userID, err := normalizeRequiredString(req.UserID)
+	if err != nil {
+		return err
+	}
+
+	title, err := normalizeRequiredString(req.Title)
+	if err != nil {
+		return err
+	}
+
+	content, err := normalizeRequiredString(req.Content)
+	if err != nil {
+		return err
+	}
+
 	note := &domain.Note{
-		ID:        req.ID,
-		UserID:    req.UserID,
-		Title:     req.Title,
-		Content:   req.Content,
+		ID:        id,
+		UserID:    userID,
+		Title:     title,
+		Content:   content,
 		UpdatedAt: time.Now().UTC(),
 	}
 
@@ -78,7 +98,22 @@ func (s *NoteService) CreateNote(ctx context.Context, req CreateNoteRequest) err
 }
 
 func (s *NoteService) UpdateNote(ctx context.Context, req UpdateNoteRequest) error {
-	note, err := s.notesRepo.GetByID(ctx, req.ID)
+	id, err := normalizeRequiredString(req.ID)
+	if err != nil {
+		return err
+	}
+
+	title, err := normalizeRequiredString(req.Title)
+	if err != nil {
+		return err
+	}
+
+	content, err := normalizeRequiredString(req.Content)
+	if err != nil {
+		return err
+	}
+
+	note, err := s.notesRepo.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return domain.ErrNoteNotFound
@@ -87,8 +122,8 @@ func (s *NoteService) UpdateNote(ctx context.Context, req UpdateNoteRequest) err
 		return err
 	}
 
-	note.Title = req.Title
-	note.Content = req.Content
+	note.Title = title
+	note.Content = content
 	note.UpdatedAt = time.Now().UTC()
 
 	return s.notesRepo.Update(ctx, note)
