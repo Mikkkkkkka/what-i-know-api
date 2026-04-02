@@ -3,7 +3,7 @@ package security
 import (
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/mikkkkkkka/what-i-know-api/internal/usecase"
+	"github.com/mikkkkkkka/what-i-know-api/internal/service"
 )
 
 type BcryptPasswordHasher struct {
@@ -31,4 +31,4 @@ func (h *BcryptPasswordHasher) Compare(hashedPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
 
-var _ usecase.PasswordHasher = (*BcryptPasswordHasher)(nil)
+var _ service.PasswordHasher = (*BcryptPasswordHasher)(nil)

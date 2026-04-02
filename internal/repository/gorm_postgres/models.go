@@ -1,4 +1,4 @@
-package repository
+package gorm_postgres
 
 import (
 	"time"

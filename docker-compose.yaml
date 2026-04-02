@@ -2,24 +2,28 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile
     depends_on:
       db:
         condition: service_healthy
     environment:
-      DATABASE_DSN: host=db user=postgres password=postgres dbname=what_i_know port=5432 sslmode=disable
-      HTTP_ADDRESS: :8080
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SSL_MODE: ${DB_SSL_MODE}
+      HTTP_ADDRESS: ${HTTP_ADDRESS}
     ports:
       - "8080:8080"
 
   db:
     image: postgres:16
     environment:
-      POSTGRES_DB: what_i_know
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d what_i_know"]
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 5s
       timeout: 5s
       retries: 5

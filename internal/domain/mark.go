@@ -1,8 +1,7 @@
 package domain
 
 import (
-	"context"
-	"strings"
+	"errors"
 	"time"
 )
 
@@ -14,42 +13,5 @@ type Mark struct {
 	UpdatedAt time.Time
 }
 
-func NewMark(id, userID string, date time.Time, content string, updatedAt time.Time) (*Mark, error) {
-	id = strings.TrimSpace(id)
-	userID = strings.TrimSpace(userID)
-	content = strings.TrimSpace(content)
-	if id == "" || userID == "" || date.IsZero() || content == "" || updatedAt.IsZero() {
-		return nil, ErrInvalidInput
-	}
-
-	return &Mark{
-		ID:        id,
-		UserID:    userID,
-		Date:      date.UTC(),
-		Content:   content,
-		UpdatedAt: updatedAt.UTC(),
-	}, nil
-}
-
-func (m *Mark) UpdateContent(content string, updatedAt time.Time) error {
-	if m == nil {
-		return ErrInvalidInput
-	}
-
-	content = strings.TrimSpace(content)
-	if content == "" || updatedAt.IsZero() {
-		return ErrInvalidInput
-	}
-
-	m.Content = content
-	m.UpdatedAt = updatedAt.UTC()
-	return nil
-}
-
-type MarkRepository interface {
-	GetByID(ctx context.Context, id string) (*Mark, error)
-	GetByUserID(ctx context.Context, userID string) ([]*Mark, error)
-	Create(ctx context.Context, mark *Mark) error
-	Update(ctx context.Context, mark *Mark) error
-	Delete(ctx context.Context, id string) error
-}
+var ErrMarkNotFound = errors.New("mark not found")
+var ErrMarkAlreadyExists = errors.New("mark already exists")

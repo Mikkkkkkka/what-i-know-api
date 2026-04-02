@@ -2,41 +2,26 @@ package api
 
 import (
 	"net/http"
-	"time"
 
-	"github.com/go-chi/chi/v5"
-
-	"github.com/mikkkkkkka/what-i-know-api/internal/usecase"
+	"github.com/mikkkkkkka/what-i-know-api/internal/service"
 )
 
-type createMarkRequest struct {
-	ID      string    `json:"id"`
-	UserID  string    `json:"user_id"`
-	Date    time.Time `json:"date"`
-	Content string    `json:"content"`
+type MarkHandler struct {
+	marks *service.MarkService
 }
 
-type updateMarkRequest struct {
-	Content string `json:"content"`
+func NewMarkHandler(marks *service.MarkService) *MarkHandler {
+	return &MarkHandler{marks: marks}
 }
 
-func (h *Handler) registerMarkRoutes(r chi.Router) {
-	r.Route("/marks", func(r chi.Router) {
-		r.With().Post("/", h.createMark)
-		r.With().Get("/{markID}", h.getMark)
-		r.With().Patch("/{markID}", h.updateMark)
-		r.With().Delete("/{markID}", h.deleteMark)
-	})
-}
-
-func (h *Handler) createMark(w http.ResponseWriter, r *http.Request) {
+func (h *MarkHandler) CreateMark(w http.ResponseWriter, r *http.Request) {
 	var request createMarkRequest
 	if err := decodeJSON(r, &request); err != nil {
 		writeError(w, err)
 		return
 	}
 
-	err := h.services.Marks.CreateMark(r.Context(), usecase.CreateMarkRequest{
+	err := h.marks.CreateMark(r.Context(), service.CreateMarkRequest{
 		ID:      request.ID,
 		UserID:  request.UserID,
 		Date:    request.Date,
@@ -50,14 +35,14 @@ func (h *Handler) createMark(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, map[string]string{"status": "created"})
 }
 
-func (h *Handler) getMark(w http.ResponseWriter, r *http.Request) {
+func (h *MarkHandler) GetMark(w http.ResponseWriter, r *http.Request) {
 	markID, err := urlParamString(r, "markID")
 	if err != nil {
 		writeError(w, err)
 		return
 	}
 
-	mark, err := h.services.Marks.GetByID(r.Context(), markID)
+	mark, err := h.marks.GetByID(r.Context(), markID)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -66,14 +51,14 @@ func (h *Handler) getMark(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, newMarkResponse(mark))
 }
 
-func (h *Handler) listMarksByUser(w http.ResponseWriter, r *http.Request) {
+func (h *MarkHandler) ListMarksByUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := urlParamString(r, "userID")
 	if err != nil {
 		writeError(w, err)
 		return
 	}
 
-	marks, err := h.services.Marks.GetByUserID(r.Context(), userID)
+	marks, err := h.marks.GetByUserID(r.Context(), userID)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -82,7 +67,7 @@ func (h *Handler) listMarksByUser(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, newMarkResponses(marks))
 }
 
-func (h *Handler) updateMark(w http.ResponseWriter, r *http.Request) {
+func (h *MarkHandler) UpdateMark(w http.ResponseWriter, r *http.Request) {
 	markID, err := urlParamString(r, "markID")
 	if err != nil {
 		writeError(w, err)
@@ -95,7 +80,7 @@ func (h *Handler) updateMark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.services.Marks.UpdateMark(r.Context(), usecase.UpdateMarkRequest{
+	err = h.marks.UpdateMark(r.Context(), service.UpdateMarkRequest{
 		ID:      markID,
 		Content: request.Content,
 	})
@@ -107,14 +92,14 @@ func (h *Handler) updateMark(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "updated"})
 }
 
-func (h *Handler) deleteMark(w http.ResponseWriter, r *http.Request) {
+func (h *MarkHandler) DeleteMark(w http.ResponseWriter, r *http.Request) {
 	markID, err := urlParamString(r, "markID")
 	if err != nil {
 		writeError(w, err)
 		return
 	}
 
-	if err := h.services.Marks.DeleteMark(r.Context(), markID); err != nil {
+	if err := h.marks.DeleteMark(r.Context(), markID); err != nil {
 		writeError(w, err)
 		return
 	}
