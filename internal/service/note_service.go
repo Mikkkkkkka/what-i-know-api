@@ -26,6 +26,7 @@ type CreateNoteRequest struct {
 
 type UpdateNoteRequest struct {
 	ID      string
+	UserID  string
 	Title   string
 	Content string
 }
@@ -103,6 +104,11 @@ func (s *NoteService) UpdateNote(ctx context.Context, req UpdateNoteRequest) err
 		return err
 	}
 
+	userID, err := normalizeRequiredString(req.UserID)
+	if err != nil {
+		return err
+	}
+
 	title, err := normalizeRequiredString(req.Title)
 	if err != nil {
 		return err
@@ -122,6 +128,10 @@ func (s *NoteService) UpdateNote(ctx context.Context, req UpdateNoteRequest) err
 		return err
 	}
 
+	if note.UserID != userID {
+		return domain.ErrNoteNotFound
+	}
+
 	note.Title = title
 	note.Content = content
 	note.UpdatedAt = time.Now().UTC()
@@ -129,6 +139,29 @@ func (s *NoteService) UpdateNote(ctx context.Context, req UpdateNoteRequest) err
 	return s.notesRepo.Update(ctx, note)
 }
 
-func (s *NoteService) DeleteNote(ctx context.Context, id string) error {
-	return s.notesRepo.Delete(ctx, id)
+func (s *NoteService) DeleteNote(ctx context.Context, id string, userID string) error {
+	normalizedID, err := normalizeRequiredString(id)
+	if err != nil {
+		return err
+	}
+
+	normalizedUserID, err := normalizeRequiredString(userID)
+	if err != nil {
+		return err
+	}
+
+	note, err := s.notesRepo.GetByID(ctx, normalizedID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return domain.ErrNoteNotFound
+		}
+
+		return err
+	}
+
+	if note.UserID != normalizedUserID {
+		return domain.ErrNoteNotFound
+	}
+
+	return s.notesRepo.Delete(ctx, normalizedID)
 }
