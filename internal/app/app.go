@@ -8,6 +8,7 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/api"
 	"github.com/mikkkkkkka/what-i-know-api/internal/auth"
 	"github.com/mikkkkkkka/what-i-know-api/internal/config"
+	"github.com/mikkkkkkka/what-i-know-api/internal/middleware"
 	"github.com/mikkkkkkka/what-i-know-api/internal/repository/gorm_postgres"
 	"github.com/mikkkkkkka/what-i-know-api/internal/security"
 	"github.com/mikkkkkkka/what-i-know-api/internal/service"
@@ -47,7 +48,9 @@ func Start() {
 	noteHandler := api.NewNoteHandler(noteService)
 	markHandler := api.NewMarkHandler(markService)
 
-	router := SetupRouter(cfg, authHandler, userHandler, noteHandler, markHandler)
+	authMiddleware := middleware.NewAuthMiddleware(jwtManager)
+
+	router := SetupRouter(cfg, authHandler, userHandler, noteHandler, markHandler, authMiddleware)
 
 	httpServer := &http.Server{
 		Addr:         cfg.HTTPAddress,
