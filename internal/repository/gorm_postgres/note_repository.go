@@ -19,7 +19,7 @@ func NewNoteRepository(db *gorm.DB) *NoteRepository {
 
 func (r *NoteRepository) GetByID(ctx context.Context, id string) (*domain.Note, error) {
 	var model noteModel
-	if err := r.db.WithContext(ctx).First(&model, id).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", id).First(&model).Error; err != nil {
 		return nil, err
 	}
 

@@ -19,7 +19,7 @@ func NewMarkRepository(db *gorm.DB) *MarkRepository {
 
 func (r *MarkRepository) GetByID(ctx context.Context, id string) (*domain.Mark, error) {
 	var model markModel
-	if err := r.db.WithContext(ctx).First(&model, id).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", id).First(&model).Error; err != nil {
 		return nil, err
 	}
 

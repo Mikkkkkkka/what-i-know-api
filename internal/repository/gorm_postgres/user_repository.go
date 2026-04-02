@@ -19,7 +19,7 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 
 func (r *UserRepository) GetByID(ctx context.Context, id string) (*domain.User, error) {
 	var model userModel
-	if err := r.db.WithContext(ctx).First(&model, id).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", id).First(&model).Error; err != nil {
 		return nil, err
 	}
 
