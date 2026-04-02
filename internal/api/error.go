@@ -8,13 +8,16 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/service"
 )
 
-var ErrInvalidInput = errors.New("invalid input")
+var (
+	ErrInvalidInput = errors.New("invalid input")
+	ErrInternal     = errors.New("internal error")
+)
 
 type errorResponse struct {
 	Error string `json:"error"`
 }
 
-func writeError(w http.ResponseWriter, err error) {
+func WriteError(w http.ResponseWriter, err error) {
 	status := http.StatusInternalServerError
 	message := "internal server error"
 
@@ -27,6 +30,9 @@ func writeError(w http.ResponseWriter, err error) {
 		message = err.Error()
 	case errors.Is(err, domain.ErrForbidden):
 		status = http.StatusForbidden
+		message = err.Error()
+	case errors.Is(err, domain.ErrIncorrectCredentials):
+		status = http.StatusUnauthorized
 		message = err.Error()
 	case errors.Is(err, domain.ErrUserNotFound):
 		status = http.StatusNotFound

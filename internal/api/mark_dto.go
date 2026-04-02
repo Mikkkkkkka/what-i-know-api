@@ -8,7 +8,6 @@ import (
 
 type createMarkRequest struct {
 	ID      string    `json:"id"`
-	UserID  string    `json:"user_id"`
 	Date    time.Time `json:"date"`
 	Content string    `json:"content"`
 }
@@ -19,7 +18,6 @@ type updateMarkRequest struct {
 
 type markResponse struct {
 	ID        string    `json:"id"`
-	UserID    string    `json:"user_id"`
 	Date      time.Time `json:"date"`
 	Content   string    `json:"content"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -28,7 +26,6 @@ type markResponse struct {
 func newMarkResponse(mark *domain.Mark) markResponse {
 	return markResponse{
 		ID:        mark.ID,
-		UserID:    mark.UserID,
 		Date:      mark.Date,
 		Content:   mark.Content,
 		UpdatedAt: mark.UpdatedAt,

@@ -9,9 +9,10 @@ import (
 )
 
 type noteRepoStub struct {
-	created *domain.Note
-	gotID   string
-	gotNote *domain.Note
+	created   *domain.Note
+	gotID     string
+	gotNote   *domain.Note
+	deletedID string
 }
 
 func (s *noteRepoStub) GetByID(_ context.Context, id string) (*domain.Note, error) {
@@ -37,7 +38,8 @@ func (s *noteRepoStub) Update(_ context.Context, note *domain.Note) error {
 	return nil
 }
 
-func (s *noteRepoStub) Delete(_ context.Context, _ string) error {
+func (s *noteRepoStub) Delete(_ context.Context, id string) error {
+	s.deletedID = id
 	return nil
 }
 
@@ -88,6 +90,7 @@ func TestNoteServiceUpdateNoteRejectsWhitespaceOnlyFields(t *testing.T) {
 
 	err := svc.UpdateNote(context.Background(), UpdateNoteRequest{
 		ID:      " note-id ",
+		UserID:  "user-id",
 		Title:   " ",
 		Content: "content",
 	})
@@ -96,5 +99,40 @@ func TestNoteServiceUpdateNoteRejectsWhitespaceOnlyFields(t *testing.T) {
 	}
 	if repo.created != nil {
 		t.Fatal("expected repository update not to be called")
+	}
+}
+
+func TestNoteServiceUpdateNoteRejectsDifferentOwner(t *testing.T) {
+	repo := &noteRepoStub{
+		gotNote: &domain.Note{ID: "note-id", UserID: "owner-id", Title: "old", Content: "old"},
+	}
+	svc := NewNoteService(repo)
+
+	err := svc.UpdateNote(context.Background(), UpdateNoteRequest{
+		ID:      "note-id",
+		UserID:  "other-user",
+		Title:   "title",
+		Content: "content",
+	})
+	if !errors.Is(err, domain.ErrNoteNotFound) {
+		t.Fatalf("expected ErrNoteNotFound, got %v", err)
+	}
+	if repo.created != nil {
+		t.Fatal("expected repository update not to be called")
+	}
+}
+
+func TestNoteServiceDeleteNoteRejectsDifferentOwner(t *testing.T) {
+	repo := &noteRepoStub{
+		gotNote: &domain.Note{ID: "note-id", UserID: "owner-id"},
+	}
+	svc := NewNoteService(repo)
+
+	err := svc.DeleteNote(context.Background(), "note-id", "other-user")
+	if !errors.Is(err, domain.ErrNoteNotFound) {
+		t.Fatalf("expected ErrNoteNotFound, got %v", err)
+	}
+	if repo.deletedID != "" {
+		t.Fatal("expected repository delete not to be called")
 	}
 }

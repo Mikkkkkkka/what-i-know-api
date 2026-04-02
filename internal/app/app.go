@@ -6,7 +6,9 @@ import (
 	"strings"
 
 	"github.com/mikkkkkkka/what-i-know-api/internal/api"
+	"github.com/mikkkkkkka/what-i-know-api/internal/auth"
 	"github.com/mikkkkkkka/what-i-know-api/internal/config"
+	"github.com/mikkkkkkka/what-i-know-api/internal/middleware"
 	"github.com/mikkkkkkka/what-i-know-api/internal/repository/gorm_postgres"
 	"github.com/mikkkkkkka/what-i-know-api/internal/security"
 	"github.com/mikkkkkkka/what-i-know-api/internal/service"
@@ -34,16 +36,21 @@ func Start() {
 
 	idGenerator := security.NewUUIDGenerator()
 	passwordHasher := security.NewBcryptPasswordHasher(0)
+	jwtManager := auth.NewJWTManager(cfg.JWTSecret)
 
 	userService := service.NewUserService(userRepository, idGenerator, passwordHasher)
+	authService := service.NewAuthService(userRepository, jwtManager, idGenerator, passwordHasher)
 	noteService := service.NewNoteService(noteRepository)
 	markService := service.NewMarkService(markRepository)
 
+	authHandler := api.NewAuthHandler(authService)
 	userHandler := api.NewUserHandler(userService)
 	noteHandler := api.NewNoteHandler(noteService)
 	markHandler := api.NewMarkHandler(markService)
 
-	router := SetupRouter(cfg, userHandler, noteHandler, markHandler)
+	authMiddleware := middleware.NewAuthMiddleware(jwtManager)
+
+	router := SetupRouter(cfg, authHandler, userHandler, noteHandler, markHandler, authMiddleware)
 
 	httpServer := &http.Server{
 		Addr:         cfg.HTTPAddress,

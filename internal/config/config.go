@@ -14,6 +14,7 @@ type Config struct {
 	DBPassword          string
 	DBName              string
 	DBSSLMode           string
+	JWTSecret           []byte
 	HTTPAddress         string
 	HTTPAPIBasePath     string
 	HTTPReadTimeout     time.Duration
@@ -30,6 +31,7 @@ func Load() Config {
 		DBPassword:          os.Getenv("DB_PASSWORD"),
 		DBName:              os.Getenv("DB_NAME"),
 		DBSSLMode:           os.Getenv("DB_SSL_MODE"),
+		JWTSecret:           []byte(os.Getenv("JWT_SECRET")),
 		HTTPAddress:         os.Getenv("HTTP_ADDRESS"),
 		HTTPAPIBasePath:     os.Getenv("HTTP_API_BASE_PATH"),
 		HTTPReadTimeout:     5 * time.Second,
