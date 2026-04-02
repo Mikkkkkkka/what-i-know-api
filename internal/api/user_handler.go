@@ -14,25 +14,6 @@ func NewUserHandler(users *service.UserService) *UserHandler {
 	return &UserHandler{users: users}
 }
 
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var request createUserRequest
-	if err := decodeJSON(r, &request); err != nil {
-		WriteError(w, err)
-		return
-	}
-
-	id, err := h.users.CreateUser(r.Context(), service.CreateUserRequest{
-		Username: request.Username,
-		Password: request.Password,
-	})
-	if err != nil {
-		WriteError(w, err)
-		return
-	}
-
-	writeJSON(w, http.StatusCreated, map[string]string{"id": id})
-}
-
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := urlParamString(r, "userID")
 	if err != nil {

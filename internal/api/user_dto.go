@@ -6,11 +6,6 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
 
-type createUserRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
 type updateUserRequest struct {
 	Username string `json:"username"`
 }

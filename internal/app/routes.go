@@ -26,7 +26,6 @@ func SetupRouter(cfg config.Config, authHandler *api.AuthHandler, userHandler *a
 		})
 
 		r.Route("/users", func(r chi.Router) {
-			r.Post("/", userHandler.CreateUser)
 			r.Get("/{userID}", userHandler.GetUser)
 
 			r.With(authMiddleware.AuthMiddleware).Patch("/{userID}", userHandler.UpdateUser)
