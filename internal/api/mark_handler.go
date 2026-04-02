@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 	"github.com/mikkkkkkka/what-i-know-api/internal/service"
 )
 
@@ -15,6 +16,12 @@ func NewMarkHandler(marks *service.MarkService) *MarkHandler {
 }
 
 func (h *MarkHandler) CreateMark(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(UserIDKey).(string)
+	if !ok {
+		WriteError(w, ErrInternal)
+		return
+	}
+
 	var request createMarkRequest
 	if err := decodeJSON(r, &request); err != nil {
 		WriteError(w, err)
@@ -23,7 +30,7 @@ func (h *MarkHandler) CreateMark(w http.ResponseWriter, r *http.Request) {
 
 	err := h.marks.CreateMark(r.Context(), service.CreateMarkRequest{
 		ID:      request.ID,
-		UserID:  request.UserID,
+		UserID:  userID,
 		Date:    request.Date,
 		Content: request.Content,
 	})
@@ -36,6 +43,12 @@ func (h *MarkHandler) CreateMark(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *MarkHandler) GetMark(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(UserIDKey).(string)
+	if !ok {
+		WriteError(w, ErrInternal)
+		return
+	}
+
 	markID, err := urlParamString(r, "markID")
 	if err != nil {
 		WriteError(w, err)
@@ -48,13 +61,18 @@ func (h *MarkHandler) GetMark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if userID != mark.UserID {
+		WriteError(w, domain.ErrMarkNotFound)
+		return
+	}
+
 	writeJSON(w, http.StatusOK, newMarkResponse(mark))
 }
 
 func (h *MarkHandler) ListMarksByUser(w http.ResponseWriter, r *http.Request) {
-	userID, err := urlParamString(r, "userID")
-	if err != nil {
-		WriteError(w, err)
+	userID, ok := r.Context().Value(UserIDKey).(string)
+	if !ok {
+		WriteError(w, ErrInternal)
 		return
 	}
 
@@ -68,6 +86,12 @@ func (h *MarkHandler) ListMarksByUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *MarkHandler) UpdateMark(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(UserIDKey).(string)
+	if !ok {
+		WriteError(w, ErrInternal)
+		return
+	}
+
 	markID, err := urlParamString(r, "markID")
 	if err != nil {
 		WriteError(w, err)
@@ -82,6 +106,7 @@ func (h *MarkHandler) UpdateMark(w http.ResponseWriter, r *http.Request) {
 
 	err = h.marks.UpdateMark(r.Context(), service.UpdateMarkRequest{
 		ID:      markID,
+		UserID:  userID,
 		Content: request.Content,
 	})
 	if err != nil {
@@ -93,13 +118,19 @@ func (h *MarkHandler) UpdateMark(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *MarkHandler) DeleteMark(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(UserIDKey).(string)
+	if !ok {
+		WriteError(w, ErrInternal)
+		return
+	}
+
 	markID, err := urlParamString(r, "markID")
 	if err != nil {
 		WriteError(w, err)
 		return
 	}
 
-	if err := h.marks.DeleteMark(r.Context(), markID); err != nil {
+	if err := h.marks.DeleteMark(r.Context(), markID, userID); err != nil {
 		WriteError(w, err)
 		return
 	}

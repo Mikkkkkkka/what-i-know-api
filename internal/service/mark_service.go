@@ -26,6 +26,7 @@ type CreateMarkRequest struct {
 
 type UpdateMarkRequest struct {
 	ID      string
+	UserID  string
 	Content string
 }
 
@@ -99,6 +100,11 @@ func (s *MarkService) UpdateMark(ctx context.Context, req UpdateMarkRequest) err
 		return err
 	}
 
+	userID, err := normalizeRequiredString(req.UserID)
+	if err != nil {
+		return err
+	}
+
 	content, err := normalizeRequiredString(req.Content)
 	if err != nil {
 		return err
@@ -113,12 +119,39 @@ func (s *MarkService) UpdateMark(ctx context.Context, req UpdateMarkRequest) err
 		return err
 	}
 
+	if mark.UserID != userID {
+		return domain.ErrMarkNotFound
+	}
+
 	mark.Content = content
 	mark.UpdatedAt = time.Now().UTC()
 
 	return s.marksRepo.Update(ctx, mark)
 }
 
-func (s *MarkService) DeleteMark(ctx context.Context, id string) error {
-	return s.marksRepo.Delete(ctx, id)
+func (s *MarkService) DeleteMark(ctx context.Context, id string, userID string) error {
+	normalizedID, err := normalizeRequiredString(id)
+	if err != nil {
+		return err
+	}
+
+	normalizedUserID, err := normalizeRequiredString(userID)
+	if err != nil {
+		return err
+	}
+
+	mark, err := s.marksRepo.GetByID(ctx, normalizedID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return domain.ErrMarkNotFound
+		}
+
+		return err
+	}
+
+	if mark.UserID != normalizedUserID {
+		return domain.ErrMarkNotFound
+	}
+
+	return s.marksRepo.Delete(ctx, normalizedID)
 }

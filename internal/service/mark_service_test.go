@@ -10,8 +10,9 @@ import (
 )
 
 type markRepoStub struct {
-	created *domain.Mark
-	gotNote *domain.Mark
+	created   *domain.Mark
+	gotNote   *domain.Mark
+	deletedID string
 }
 
 func (s *markRepoStub) GetByID(_ context.Context, _ string) (*domain.Mark, error) {
@@ -36,7 +37,8 @@ func (s *markRepoStub) Update(_ context.Context, mark *domain.Mark) error {
 	return nil
 }
 
-func (s *markRepoStub) Delete(_ context.Context, _ string) error {
+func (s *markRepoStub) Delete(_ context.Context, id string) error {
+	s.deletedID = id
 	return nil
 }
 
@@ -90,6 +92,7 @@ func TestMarkServiceUpdateMarkRejectsWhitespaceOnlyContent(t *testing.T) {
 
 	err := svc.UpdateMark(context.Background(), UpdateMarkRequest{
 		ID:      " mark-id ",
+		UserID:  "user-id",
 		Content: " ",
 	})
 	if !errors.Is(err, ErrInvalidInput) {
@@ -97,5 +100,39 @@ func TestMarkServiceUpdateMarkRejectsWhitespaceOnlyContent(t *testing.T) {
 	}
 	if repo.created != nil {
 		t.Fatal("expected repository update not to be called")
+	}
+}
+
+func TestMarkServiceUpdateMarkRejectsDifferentOwner(t *testing.T) {
+	repo := &markRepoStub{
+		gotNote: &domain.Mark{ID: "mark-id", UserID: "owner-id", Content: "old"},
+	}
+	svc := NewMarkService(repo)
+
+	err := svc.UpdateMark(context.Background(), UpdateMarkRequest{
+		ID:      "mark-id",
+		UserID:  "other-user",
+		Content: "content",
+	})
+	if !errors.Is(err, domain.ErrMarkNotFound) {
+		t.Fatalf("expected ErrMarkNotFound, got %v", err)
+	}
+	if repo.created != nil {
+		t.Fatal("expected repository update not to be called")
+	}
+}
+
+func TestMarkServiceDeleteMarkRejectsDifferentOwner(t *testing.T) {
+	repo := &markRepoStub{
+		gotNote: &domain.Mark{ID: "mark-id", UserID: "owner-id"},
+	}
+	svc := NewMarkService(repo)
+
+	err := svc.DeleteMark(context.Background(), "mark-id", "other-user")
+	if !errors.Is(err, domain.ErrMarkNotFound) {
+		t.Fatalf("expected ErrMarkNotFound, got %v", err)
+	}
+	if repo.deletedID != "" {
+		t.Fatal("expected repository delete not to be called")
 	}
 }
