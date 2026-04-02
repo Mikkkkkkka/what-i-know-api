@@ -70,6 +70,10 @@ func (s *MarkService) CreateMark(ctx context.Context, req CreateMarkRequest) err
 		return err
 	}
 
+	if req.Date.IsZero() {
+		return ErrInvalidInput
+	}
+
 	mark := &domain.Mark{
 		ID:        id,
 		UserID:    userID,
