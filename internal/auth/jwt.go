@@ -20,7 +20,7 @@ func NewJWTManager(secret []byte) *JWTManager {
 	return &JWTManager{secret: secret}
 }
 
-func (j *JWTManager) GenerateJWTToken(userID string) (string, error) {
+func (j *JWTManager) Generate(userID string) (string, error) {
 	claims := Claims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
