@@ -84,7 +84,8 @@ func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (st
 		return "", err
 	}
 
-	if strings.TrimSpace(req.Password) == "" {
+	password := strings.TrimSpace(req.Password)
+	if password == "" {
 		return "", ErrInvalidInput
 	}
 
@@ -93,7 +94,7 @@ func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (st
 		return "", err
 	}
 
-	hashedPassword, err := s.passwordHasher.Hash(req.Password)
+	hashedPassword, err := s.passwordHasher.Hash(password)
 	if err != nil {
 		return "", err
 	}
