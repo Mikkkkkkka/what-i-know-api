@@ -8,7 +8,10 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/service"
 )
 
-var ErrInvalidInput = errors.New("invalid input")
+var (
+	ErrInvalidInput = errors.New("invalid input")
+	ErrInternal     = errors.New("internal error")
+)
 
 type errorResponse struct {
 	Error string `json:"error"`

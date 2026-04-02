@@ -31,9 +31,9 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	userID, err := urlParamString(r, "userID")
-	if err != nil {
-		WriteError(w, err)
+	userID, ok := r.Context().Value(UserIDKey).(string)
+	if !ok {
+		WriteError(w, ErrInternal)
 		return
 	}
 
@@ -43,7 +43,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.users.UpdateUser(r.Context(), service.UpdateUserRequest{
+	err := h.users.UpdateUser(r.Context(), service.UpdateUserRequest{
 		ID:       userID,
 		Username: request.Username,
 	})
@@ -56,9 +56,9 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	userID, err := urlParamString(r, "userID")
-	if err != nil {
-		WriteError(w, err)
+	userID, ok := r.Context().Value(UserIDKey).(string)
+	if !ok {
+		WriteError(w, ErrInternal)
 		return
 	}
 
