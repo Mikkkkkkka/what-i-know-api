@@ -83,6 +83,8 @@ func (s *NoteService) UpdateNote(ctx context.Context, req UpdateNoteRequest) err
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return domain.ErrNoteNotFound
 		}
+
+		return err
 	}
 
 	note.Title = req.Title

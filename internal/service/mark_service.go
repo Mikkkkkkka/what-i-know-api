@@ -81,6 +81,8 @@ func (s *MarkService) UpdateMark(ctx context.Context, req UpdateMarkRequest) err
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return domain.ErrMarkNotFound
 		}
+
+		return err
 	}
 
 	mark.Content = req.Content
