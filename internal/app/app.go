@@ -45,8 +45,16 @@ func Start() {
 
 	router := SetupRouter(userHandler, noteHandler, markHandler)
 
+	httpServer := &http.Server{
+		Addr:         cfg.HTTPAddress,
+		Handler:      router,
+		ReadTimeout:  cfg.HTTPReadTimeout,
+		WriteTimeout: cfg.HTTPWriteTimeout,
+		IdleTimeout:  cfg.HTTPIdleTimeout,
+	}
+
 	log.Printf("Server listening at %v\n", cfg.HTTPAddress)
-	if err := http.ListenAndServe(cfg.HTTPAddress, router); err != nil {
+	if err := httpServer.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
 }
