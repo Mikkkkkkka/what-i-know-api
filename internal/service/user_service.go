@@ -85,7 +85,7 @@ func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (st
 	}
 
 	if strings.TrimSpace(req.Password) == "" {
-		return "", err
+		return "", ErrInvalidInput
 	}
 
 	id, err := s.idGenerator.Generate()
