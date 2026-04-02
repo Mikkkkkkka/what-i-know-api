@@ -17,7 +17,7 @@ func NewUserHandler(users *service.UserService) *UserHandler {
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var request createUserRequest
 	if err := decodeJSON(r, &request); err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
@@ -26,7 +26,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		Password: request.Password,
 	})
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
@@ -36,13 +36,13 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := urlParamString(r, "userID")
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
 	user, err := h.users.GetByID(r.Context(), userID)
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
@@ -52,13 +52,13 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := urlParamString(r, "userID")
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
 	var request updateUserRequest
 	if err := decodeJSON(r, &request); err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
@@ -67,7 +67,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		Username: request.Username,
 	})
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
@@ -77,12 +77,12 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := urlParamString(r, "userID")
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
 	if err := h.users.DeleteUser(r.Context(), userID); err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 

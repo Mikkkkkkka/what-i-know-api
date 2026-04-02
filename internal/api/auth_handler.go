@@ -17,7 +17,7 @@ func NewAuthHandler(auth *service.AuthService) *AuthHandler {
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var request loginRequest
 	if err := decodeJSON(r, &request); err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
@@ -26,7 +26,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Password: request.Password,
 	})
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
@@ -36,7 +36,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var request registerRequest
 	if err := decodeJSON(r, &request); err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
@@ -45,7 +45,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		Password: request.Password,
 	})
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 

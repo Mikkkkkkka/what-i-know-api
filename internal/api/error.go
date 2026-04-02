@@ -14,7 +14,7 @@ type errorResponse struct {
 	Error string `json:"error"`
 }
 
-func writeError(w http.ResponseWriter, err error) {
+func WriteError(w http.ResponseWriter, err error) {
 	status := http.StatusInternalServerError
 	message := "internal server error"
 

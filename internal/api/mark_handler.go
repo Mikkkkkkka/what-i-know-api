@@ -17,7 +17,7 @@ func NewMarkHandler(marks *service.MarkService) *MarkHandler {
 func (h *MarkHandler) CreateMark(w http.ResponseWriter, r *http.Request) {
 	var request createMarkRequest
 	if err := decodeJSON(r, &request); err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
@@ -28,7 +28,7 @@ func (h *MarkHandler) CreateMark(w http.ResponseWriter, r *http.Request) {
 		Content: request.Content,
 	})
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
@@ -38,13 +38,13 @@ func (h *MarkHandler) CreateMark(w http.ResponseWriter, r *http.Request) {
 func (h *MarkHandler) GetMark(w http.ResponseWriter, r *http.Request) {
 	markID, err := urlParamString(r, "markID")
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
 	mark, err := h.marks.GetByID(r.Context(), markID)
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
@@ -54,13 +54,13 @@ func (h *MarkHandler) GetMark(w http.ResponseWriter, r *http.Request) {
 func (h *MarkHandler) ListMarksByUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := urlParamString(r, "userID")
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
 	marks, err := h.marks.GetByUserID(r.Context(), userID)
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
@@ -70,13 +70,13 @@ func (h *MarkHandler) ListMarksByUser(w http.ResponseWriter, r *http.Request) {
 func (h *MarkHandler) UpdateMark(w http.ResponseWriter, r *http.Request) {
 	markID, err := urlParamString(r, "markID")
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
 	var request updateMarkRequest
 	if err := decodeJSON(r, &request); err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
@@ -85,7 +85,7 @@ func (h *MarkHandler) UpdateMark(w http.ResponseWriter, r *http.Request) {
 		Content: request.Content,
 	})
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
@@ -95,12 +95,12 @@ func (h *MarkHandler) UpdateMark(w http.ResponseWriter, r *http.Request) {
 func (h *MarkHandler) DeleteMark(w http.ResponseWriter, r *http.Request) {
 	markID, err := urlParamString(r, "markID")
 	if err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
 	if err := h.marks.DeleteMark(r.Context(), markID); err != nil {
-		writeError(w, err)
+		WriteError(w, err)
 		return
 	}
 
