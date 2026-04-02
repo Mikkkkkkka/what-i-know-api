@@ -14,3 +14,4 @@ type User struct {
 
 var ErrUserNotFound = errors.New("user not found")
 var ErrUsernameAlreadyExists = errors.New("username already exists")
+var ErrIncorrectCredentials = errors.New("incorrect credentials")
