@@ -28,6 +28,9 @@ func writeError(w http.ResponseWriter, err error) {
 	case errors.Is(err, domain.ErrForbidden):
 		status = http.StatusForbidden
 		message = err.Error()
+	case errors.Is(err, domain.ErrIncorrectCredentials):
+		status = http.StatusUnauthorized
+		message = err.Error()
 	case errors.Is(err, domain.ErrUserNotFound):
 		status = http.StatusNotFound
 		message = err.Error()
