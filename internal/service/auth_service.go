@@ -31,10 +31,12 @@ type RegisterRequest struct {
 	Password string `json:"password"`
 }
 
-func NewAuthService(userRepo UserRepository, jwtManager TokenManager) *AuthService {
+func NewAuthService(userRepo UserRepository, jwtManager TokenManager, idGenerator IDGenerator, passwordHasher PasswordHasher) *AuthService {
 	return &AuthService{
-		userRepo:   userRepo,
-		jwtManager: jwtManager,
+		userRepo:       userRepo,
+		jwtManager:     jwtManager,
+		idGenerator:    idGenerator,
+		passwordHasher: passwordHasher,
 	}
 }
 
