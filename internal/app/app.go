@@ -43,7 +43,7 @@ func Start() {
 	noteHandler := api.NewNoteHandler(noteService)
 	markHandler := api.NewMarkHandler(markService)
 
-	router := SetupRouter(userHandler, noteHandler, markHandler)
+	router := SetupRouter(cfg, userHandler, noteHandler, markHandler)
 
 	httpServer := &http.Server{
 		Addr:         cfg.HTTPAddress,
