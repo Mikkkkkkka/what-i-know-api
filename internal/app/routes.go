@@ -18,7 +18,7 @@ func SetupRouter(userHandler *api.UserHandler, noteHandler *api.NoteHandler, mar
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Heartbeat("/health"))
 
-	r.Route("/user", func(r chi.Router) {
+	r.Route("/users", func(r chi.Router) {
 		r.Post("/", userHandler.CreateUser)
 		r.Get("/{userID}", userHandler.GetUser)
 		r.Patch("/{userID}", userHandler.UpdateUser)
@@ -28,14 +28,14 @@ func SetupRouter(userHandler *api.UserHandler, noteHandler *api.NoteHandler, mar
 		r.Get("/{userID}/marks", markHandler.ListMarksByUser)
 	})
 
-	r.Route("/note", func(r chi.Router) {
+	r.Route("/notes", func(r chi.Router) {
 		r.Post("/", noteHandler.CreateNote)
 		r.Get("/{noteID}", noteHandler.GetNote)
 		r.Patch("/{noteID}", noteHandler.UpdateNote)
 		r.Delete("/{noteID}", noteHandler.DeleteNote)
 	})
 
-	r.Route("/mark", func(r chi.Router) {
+	r.Route("/marks", func(r chi.Router) {
 		r.Post("/", markHandler.CreateMark)
 		r.Get("/{markID}", markHandler.GetMark)
 		r.Patch("/{markID}", markHandler.UpdateMark)
