@@ -10,10 +10,6 @@ import (
 	"github.com/mikkkkkkka/what-i-know-api/internal/domain"
 )
 
-type ctxKey string
-
-var CtxUserID ctxKey = "user_id"
-
 type AuthMiddleware struct {
 	jwtManager *auth.JWTManager
 }
@@ -37,7 +33,7 @@ func (m *AuthMiddleware) AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), CtxUserID, claims.UserID)
+		ctx := context.WithValue(r.Context(), api.UserIDKey, claims.UserID)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
